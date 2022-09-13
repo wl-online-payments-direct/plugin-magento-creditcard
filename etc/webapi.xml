@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <!-- CREDIT CARD: create payment -->
+    <route url="/V1/guest-carts/:cartId/worldline/credit-card" method="POST">
+        <service class="Worldline\CreditCard\Api\CreatePaymentManagementInterface" method="createGuestRequest"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/carts/mine/worldline/credit-card" method="POST">
+        <service class="Worldline\CreditCard\Api\CreatePaymentManagementInterface" method="createRequest"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+    <!-- CREDIT CARD: create payment -->
+</routes>
