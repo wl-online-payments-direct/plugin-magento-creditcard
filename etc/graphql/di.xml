@@ -26,4 +26,12 @@
                 name="WorldlinePaymentGraphQlPaymentTokens"
                 type="Worldline\CreditCard\GraphQl\Plugin\Model\Resolver\PaymentTokens"/>
     </type>
+
+    <type name="Worldline\PaymentCore\GraphQl\Model\PaymentIcons\IconsPool">
+        <arguments>
+            <argument name="iconsRetrievers" xsi:type="array">
+                <item name="worldline_cc" xsi:type="object">Worldline\CreditCard\GraphQl\Model\IconsRetriever</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

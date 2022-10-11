@@ -19,6 +19,9 @@ use Worldline\CreditCard\Service\Creator\Request;
 use Worldline\CreditCard\Service\Creator\RequestBuilder;
 use Worldline\PaymentCore\Model\DataAssigner\DataAssignerInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class CreatePaymentManagement implements CreatePaymentManagementInterface
 {
     /**
@@ -140,7 +143,7 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
         $this->setToken($quote, $paymentMethod);
 
         $request = $this->createRequestBuilder->build($quote);
-        $response = $this->createRequest->create($request);
+        $response = $this->createRequest->create($request, (int)$quote->getStoreId());
 
         $payment->setAdditionalInformation('payment_id', $response->getPayment()->getId());
 

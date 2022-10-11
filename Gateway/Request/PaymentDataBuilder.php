@@ -16,6 +16,7 @@ class PaymentDataBuilder implements BuilderInterface
     public const REFERENCES = 'references';
     public const TOKEN = 'token';
     public const PAYMENT_ID = 'payment_id';
+    public const STORE_ID = 'store_id';
 
     /**
      * @var SubjectReader
@@ -66,6 +67,7 @@ class PaymentDataBuilder implements BuilderInterface
 
         return [
             self::AMOUNT => $amount,
+            self::STORE_ID => (int)$order->getStoreId(),
             self::REFERENCES => $references,
             self::TOKEN => $token,
             self::PAYMENT_ID => $payment->getAdditionalInformation('payment_id'),

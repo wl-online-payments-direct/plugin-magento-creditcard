@@ -9,8 +9,9 @@ use OnlinePayments\Sdk\DataObject;
 use OnlinePayments\Sdk\Domain\RefundRequestFactory;
 use OnlinePayments\Sdk\Domain\RefundResponse;
 use Psr\Log\LoggerInterface;
-use Worldline\PaymentCore\Gateway\Http\Client\AbstractTransaction;
+use Worldline\CreditCard\Gateway\Request\RefundDataBuilder;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
+use Worldline\PaymentCore\Gateway\Http\Client\AbstractTransaction;
 use Worldline\PaymentCore\Model\ClientProvider;
 use Worldline\PaymentCore\Model\Config\WorldlineConfig;
 
@@ -53,14 +54,14 @@ class TransactionRefund extends AbstractTransaction
         $refundRequest = $this->refundRequestFactory->create();
         $refundRequest->setAmountOfMoney($data[PaymentDataBuilder::AMOUNT]);
 
-        $client = $this->clientProvider->getClient();
-        $merchantId = $this->worldlineConfig->getMerchantId();
+        $client = $this->clientProvider->getClient($data[RefundDataBuilder::STORE_ID]);
+        $merchantId = $this->worldlineConfig->getMerchantId($data[RefundDataBuilder::STORE_ID]);
 
         try {
             return $client
                 ->merchant($merchantId)
                 ->payments()
-                ->refundPayment($data['transaction_id'], $refundRequest);
+                ->refundPayment($data[RefundDataBuilder::TRANSACTION_ID], $refundRequest);
         } catch (\Exception $e) {
             throw new LocalizedException(__('WorldLine refund has failed. Please contact the provider.'));
         }

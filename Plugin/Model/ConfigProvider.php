@@ -27,11 +27,6 @@ class ConfigProvider
      */
     private $filesystem;
 
-    /**
-     * @param Source $assetSource
-     * @param PaymentIconsProvider $paymentIconsProvider
-     * @param DriverInterface $filesystem
-     */
     public function __construct(
         Source $assetSource,
         PaymentIconsProvider $paymentIconsProvider,

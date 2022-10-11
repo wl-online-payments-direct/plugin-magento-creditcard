@@ -38,7 +38,7 @@ class TransactionSale extends AbstractTransaction
             throw new LocalizedException(__('Payment id is missing'));
         }
 
-        $response = $this->getterRequest->create($paymentId);
+        $response = $this->getterRequest->create($paymentId, $data[PaymentDataBuilder::STORE_ID]);
         $this->writeLogIfNeeded($data, $response);
 
         return $response;

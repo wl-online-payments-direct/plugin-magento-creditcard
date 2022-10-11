@@ -20,10 +20,6 @@ class VaultThreeDSecureDataBuilder implements BuilderInterface
      */
     private $subjectReader;
 
-    /**
-     * @param ThreeDSecureDataBuilder $threeDSecureDataBuilder
-     * @param SubjectReader $subjectReader
-     */
     public function __construct(
         ThreeDSecureDataBuilder $threeDSecureDataBuilder,
         SubjectReader $subjectReader

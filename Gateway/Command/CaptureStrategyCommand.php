@@ -54,13 +54,6 @@ class CaptureStrategyCommand implements CommandInterface
      */
     private $subjectReader;
 
-    /**
-     * @param CommandPoolInterface $commandPool
-     * @param TransactionRepositoryInterface $repository
-     * @param FilterBuilder $filterBuilder
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param SubjectReader $subjectReader
-     */
     public function __construct(
         CommandPoolInterface $commandPool,
         TransactionRepositoryInterface $repository,

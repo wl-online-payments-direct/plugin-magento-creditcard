@@ -5,11 +5,16 @@ namespace Worldline\CreditCard\Model;
 
 use Magento\Checkout\Model\Session;
 use Magento\Sales\Model\OrderFactory;
-use Worldline\PaymentCore\Model\Order\PendingOrderException;
+use Worldline\PaymentCore\Api\Data\OrderStateInterfaceFactory;
+use Worldline\PaymentCore\Model\OrderState;
 use Worldline\PaymentCore\Model\ResourceModel\Quote as QuoteResource;
 
 class ReturnRequestProcessor
 {
+    public const SUCCESS_STATE = 'success';
+    public const WAITING_STATE = 'waiting';
+    public const FAIL_STATE = 'fail';
+
     /**
      * @var QuoteResource
      */
@@ -25,42 +30,47 @@ class ReturnRequestProcessor
      */
     private $orderFactory;
 
+    /**
+     * @var OrderStateInterfaceFactory
+     */
+    private $orderStateFactory;
+
     public function __construct(
         QuoteResource $quoteResource,
         Session $checkoutSession,
-        OrderFactory $orderFactory
+        OrderFactory $orderFactory,
+        OrderStateInterfaceFactory $orderStateFactory
     ) {
         $this->quoteResource = $quoteResource;
         $this->checkoutSession = $checkoutSession;
         $this->orderFactory = $orderFactory;
+        $this->orderStateFactory = $orderStateFactory;
     }
 
-    /**
-     * @throws PendingOrderException
-     */
-    public function processRequest(string $hostedTokenizationId): ?string
+    public function processRequest(string $hostedTokenizationId): OrderState
     {
         $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($hostedTokenizationId);
-        $order = $this->orderFactory->create()->loadByIncrementId($quote->getReservedOrderId());
+        $reservedOrderId = (string)$quote->getReservedOrderId();
+        /** @var OrderState $orderState */
+        $orderState = $this->orderStateFactory->create();
+        $orderState->setIncrementId($reservedOrderId);
+
+        $order = $this->orderFactory->create()->loadByIncrementId($reservedOrderId);
         if (!$order->getId()) {
-            $quote->setIsActive(false);
-            $this->quoteResource->saveCart($quote);
-            $this->checkoutSession->clearQuote();
-            throw new PendingOrderException(
-                __(
-                    'Thank you for your order %1.'
-                    . ' Your order is still being processed and you will receive a confirmation e-mail.'
-                    . ' Please contact us in case you don\'t receive the confirmation within 10 minutes.',
-                    $quote->getReservedOrderId()
-                )
-            );
+            $orderState->setState(self::WAITING_STATE);
+            $this->checkoutSession->clearStorage();
+            $this->checkoutSession->setLastRealOrderId($reservedOrderId);
+
+            return $orderState;
         }
 
-        $this->checkoutSession->setLastRealOrderId($quote->getReservedOrderId());
-        $this->checkoutSession->setLastOrderId($order->getId());
+        $orderState->setState(self::SUCCESS_STATE);
+        $orderId = $this->checkoutSession->getLastRealOrder()->getEntityId();
+        $this->checkoutSession->setLastOrderId($orderId);
+        $this->checkoutSession->setLastRealOrderId($reservedOrderId);
         $this->checkoutSession->setLastQuoteId($quote->getId());
         $this->checkoutSession->setLastSuccessQuoteId($quote->getId());
 
-        return (string) $quote->getReservedOrderId();
+        return $orderState;
     }
 }

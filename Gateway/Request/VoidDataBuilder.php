@@ -10,6 +10,9 @@ use Worldline\PaymentCore\Gateway\SubjectReader;
 
 class VoidDataBuilder implements BuilderInterface
 {
+    public const STORE_ID = 'store_id';
+    public const TRANSACTION_ID = 'transaction_id';
+
     /**
      * @var SubjectReader
      */
@@ -34,8 +37,8 @@ class VoidDataBuilder implements BuilderInterface
         $payment = $paymentDO->getPayment();
 
         return [
-            'transaction_id' => $payment->getParentTransactionId()
-                ?: $payment->getLastTransId()
+            self::STORE_ID => (int)$payment->getMethodInstance()->getStore(),
+            self::TRANSACTION_ID => $payment->getParentTransactionId() ?: $payment->getLastTransId()
         ];
     }
 }

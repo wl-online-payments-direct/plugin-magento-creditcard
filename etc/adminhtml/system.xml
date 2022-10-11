@@ -118,7 +118,7 @@
                 <field id="currency" translate="label" type="multiselect" sortOrder="140" showInDefault="1" canRestore="1">
                     <label>Payment from Specific Currencies</label>
                     <source_model>Magento\Config\Model\Config\Source\Locale\Currency\All</source_model>
-                    <can_be_empty>1</can_be_empty>
+                    <validate>required-entry</validate>
                     <depends>
                         <field id="active">1</field>
                         <field id="allow_specific_currency">1</field>
@@ -136,7 +136,7 @@
                 <field id="customer_group" translate="label" type="multiselect" sortOrder="160" showInDefault="1" showInWebsite="1">
                     <label>Payment from Specific Customer Groups</label>
                     <source_model>Magento\Customer\Model\Customer\Source\GroupSourceInterface</source_model>
-                    <can_be_empty>1</can_be_empty>
+                    <validate>required-entry</validate>
                     <depends>
                         <field id="active">1</field>
                         <field id="allow_specific_customer_group">1</field>

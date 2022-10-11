@@ -67,7 +67,8 @@ class ConfigProvider implements ConfigProviderInterface
     {
         try {
             $storeId = (int) $this->storeManager->getStore()->getId();
-            $createHostedTokenizationResponse = $this->createHostedTokenizationResponseProcessor->buildAndProcess();
+            $createHostedTokenizationResponse
+                = $this->createHostedTokenizationResponseProcessor->buildAndProcess($storeId);
 
             return [
                 'payment' => [

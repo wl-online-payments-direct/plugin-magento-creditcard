@@ -68,12 +68,13 @@ class CreateHostedTokenizationResponseProcessor
     }
 
     /**
+     * @param int|null $storeId
      * @return CreateHostedTokenizationResponse
      * @throws Exception
      */
-    public function buildAndProcess(): CreateHostedTokenizationResponse
+    public function buildAndProcess(?int $storeId = null): CreateHostedTokenizationResponse
     {
-        $merchantId = $this->worldlineConfig->getMerchantId();
+        $merchantId = $this->worldlineConfig->getMerchantId($storeId);
 
         $createHostedTokenizationRequest = $this->createHostedTokenizationRequestFactory->create();
         $createHostedTokenizationRequest->setAskConsumerConsent(true);
@@ -81,7 +82,7 @@ class CreateHostedTokenizationResponseProcessor
         $createHostedTokenizationRequest->setLocale($this->localResolver->getLocale());
 
         $this->vaultCards->setCurrentCustomerTokens($createHostedTokenizationRequest);
-        $createHostedTokenizationResponse = $this->modelClient->getClient()
+        $createHostedTokenizationResponse = $this->modelClient->getClient($storeId)
             ->merchant($merchantId)
             ->hostedTokenization()
             ->createHostedTokenization($createHostedTokenizationRequest);
