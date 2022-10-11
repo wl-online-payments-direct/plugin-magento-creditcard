@@ -8,6 +8,7 @@ use Exception;
 use OnlinePayments\Sdk\DataObject;
 use OnlinePayments\Sdk\Domain\CancelPaymentResponse;
 use Psr\Log\LoggerInterface;
+use Worldline\CreditCard\Gateway\Request\VoidDataBuilder;
 use Worldline\PaymentCore\Gateway\Http\Client\AbstractTransaction;
 use Worldline\PaymentCore\Model\ClientProvider;
 use Worldline\PaymentCore\Model\Config\WorldlineConfig;
@@ -41,16 +42,16 @@ class TransactionVoid extends AbstractTransaction
      */
     protected function process(array $data)
     {
-        $client = $this->modelClient->getClient();
-        $merchantId = $this->worldlineConfig->getMerchantId();
+        $client = $this->modelClient->getClient($data[VoidDataBuilder::STORE_ID]);
+        $merchantId = $this->worldlineConfig->getMerchantId($data[VoidDataBuilder::STORE_ID]);
 
-        $payment = $client->merchant($merchantId)->payments()->getPayment($data['transaction_id']);
+        $payment = $client->merchant($merchantId)->payments()->getPayment($data[VoidDataBuilder::TRANSACTION_ID]);
 
         if ($payment->getStatusOutput()->getIsCancellable()) {
             return $client
                 ->merchant($merchantId)
                 ->payments()
-                ->cancelPayment($data['transaction_id']);
+                ->cancelPayment($data[VoidDataBuilder::TRANSACTION_ID]);
         }
 
         return $payment;

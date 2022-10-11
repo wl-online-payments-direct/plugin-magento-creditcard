@@ -28,7 +28,9 @@ class PaymentMethodDataAssigner implements DataAssignerInterface
             $hostedTokenizationId = (string)$payment->getAdditionalInformation('hosted_tokenization_id');
         }
 
-        $createHostedTokenizationResponse = $this->requestHostedTokenizationSession->execute($hostedTokenizationId);
+        $storeId = (int)$payment->getMethodInstance()->getStore();
+        $createHostedTokenizationResponse
+            = $this->requestHostedTokenizationSession->execute($hostedTokenizationId, $storeId);
 
         $tokenResponse = $createHostedTokenizationResponse->getToken();
         $payment->setAdditionalInformation('token_id', $tokenResponse->getId() ?: '');

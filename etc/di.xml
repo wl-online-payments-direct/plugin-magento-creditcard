@@ -19,6 +19,24 @@
         </arguments>
     </type>
 
+    <type name="Worldline\PaymentCore\Model\PaymentStatusCode\StatusCodePool">
+        <arguments>
+            <argument name="statusCodeRetrievers" xsi:type="array">
+                <item name="worldline_cc" xsi:type="object">Worldline\CreditCard\Model\StatusCodeRetriever</item>
+                <item name="worldline_cc_vault" xsi:type="object">Worldline\CreditCard\Model\StatusCodeRetriever</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Worldline\PaymentCore\Model\ResourceModel\PendingOrderProvider">
+        <arguments>
+            <argument name="allowedPaymentMethods" xsi:type="array">
+                <item name="worldline_cc" xsi:type="const">Worldline\CreditCard\UI\ConfigProvider::CODE</item>
+                <item name="worldline_cc_vault" xsi:type="const">Worldline\CreditCard\UI\ConfigProvider::CC_VAULT_CODE</item>
+            </argument>
+        </arguments>
+    </type>
+
     <!-- Plugin -->
     <type name="Magento\Payment\Model\CcConfigProvider">
         <plugin name="Worldline_CreditCard::credit_card_config_provider"

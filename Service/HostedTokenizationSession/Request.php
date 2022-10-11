@@ -31,13 +31,14 @@ class Request
 
     /**
      * @param string $hostedTokenizationId
+     * @param int|null $storeId
      * @return GetHostedTokenizationResponse
      * @throws \Exception
      */
-    public function execute(string $hostedTokenizationId): GetHostedTokenizationResponse
+    public function execute(string $hostedTokenizationId, ?int $storeId = null): GetHostedTokenizationResponse
     {
-        return $this->clientProvider->getClient()
-            ->merchant($this->worldlineConfig->getMerchantId())
+        return $this->clientProvider->getClient($storeId)
+            ->merchant($this->worldlineConfig->getMerchantId($storeId))
             ->hostedTokenization()
             ->getHostedTokenization($hostedTokenizationId);
     }

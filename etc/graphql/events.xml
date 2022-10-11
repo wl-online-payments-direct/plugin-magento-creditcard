@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="payment_method_assign_data_worldline_cc">
-        <observer name="Worldline_PaymentCore::assign_entered_data"
+        <observer name="Worldline_CreditCard::assign_entered_data"
                   instance="Worldline\CreditCard\GraphQl\Observer\Payment\Model\Method\Adapter\AssignData" />
     </event>
 </config>

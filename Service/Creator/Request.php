@@ -44,14 +44,15 @@ class Request
      * @link https://support.direct.ingenico.com/en/documentation/api/reference/#operation/CreatePaymentApi
      *
      * @param CreatePaymentRequest $request
+     * @param int|null $storeId
      * @return CreatePaymentResponse
      * @throws LocalizedException
      */
-    public function create(CreatePaymentRequest $request): CreatePaymentResponse
+    public function create(CreatePaymentRequest $request, ?int $storeId = null): CreatePaymentResponse
     {
         try {
-            return $this->modelClient->getClient()
-                ->merchant($this->worldlineConfig->getMerchantId())
+            return $this->modelClient->getClient($storeId)
+                ->merchant($this->worldlineConfig->getMerchantId($storeId))
                 ->payments()
                 ->createPayment($request);
         } catch (Exception $e) {

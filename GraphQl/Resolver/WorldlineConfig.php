@@ -19,9 +19,6 @@ class WorldlineConfig implements ResolverInterface
      */
     private $configProvider;
 
-    /**
-     * @param ConfigProvider $configProvider
-     */
     public function __construct(
         ConfigProvider $configProvider
     ) {

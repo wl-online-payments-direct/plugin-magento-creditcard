@@ -9,6 +9,7 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Worldline\CreditCard\Model\ReturnRequestProcessor;
+use Worldline\PaymentCore\Model\OrderState;
 
 class RequestResult implements ResolverInterface
 {
@@ -39,17 +40,23 @@ class RequestResult implements ResolverInterface
             return [];
         }
 
-        // phpcs:ignore Magento2.Functions.DiscouragedFunction
-        sleep(2); // wait for the webhook
-
         try {
+            /** @var OrderState $orderState */
+            $orderState = $this->returnRequestProcessor->processRequest($hostedTokenizationId);
+            if ($orderState->getState() === ReturnRequestProcessor::WAITING_STATE) {
+                $result['result'] = ReturnRequestProcessor::WAITING_STATE;
+                $result['orderIncrementId'] = $orderState->getIncrementId();
+
+                return $result;
+            }
+
             return [
-                'result' => 'success',
-                'orderIncrementId' => $this->returnRequestProcessor->processRequest($hostedTokenizationId)
+                'result' => ReturnRequestProcessor::SUCCESS_STATE,
+                'orderIncrementId' => $orderState->getIncrementId()
             ];
         } catch (LocalizedException $e) {
             return [
-                'result' => 'fail',
+                'result' => ReturnRequestProcessor::FAIL_STATE,
                 'orderIncrementId' => ''
             ];
         }

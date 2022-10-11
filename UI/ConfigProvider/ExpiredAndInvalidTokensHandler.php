@@ -46,14 +46,6 @@ class ExpiredAndInvalidTokensHandler
      */
     private $logger;
 
-    /**
-     * @param UserContextInterface $userContext
-     * @param PaymentTokenRepositoryInterface $repository
-     * @param FilterBuilder $filterBuilder
-     * @param FilterGroupFactory $filterGroupFactory
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param LoggerInterface $logger
-     */
     public function __construct(
         UserContextInterface $userContext,
         PaymentTokenRepositoryInterface $repository,

@@ -27,11 +27,6 @@ class ShippingAddressDataBuilder
      */
     private $personalNameFactory;
 
-    /**
-     * @param ShippingFactory $shippingFactory
-     * @param AddressPersonalFactory $addressPersonalFactory
-     * @param PersonalNameFactory $personalNameFactory
-     */
     public function __construct(
         ShippingFactory $shippingFactory,
         AddressPersonalFactory $addressPersonalFactory,

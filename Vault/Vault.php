@@ -18,6 +18,7 @@ use Worldline\CreditCard\UI\ConfigProvider;
 use Worldline\PaymentCore\Model\VaultValidation;
 
 /**
+ * @SuppressWarnings(PHPMD.ExcessiveParameterList)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Vault extends \Magento\Vault\Model\Method\Vault

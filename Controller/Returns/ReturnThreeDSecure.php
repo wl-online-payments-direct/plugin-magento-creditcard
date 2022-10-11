@@ -5,44 +5,31 @@ declare(strict_types=1);
 namespace Worldline\CreditCard\Controller\Returns;
 
 use Exception;
-use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
-use Magento\Sales\Model\OrderFactory;
-use Worldline\PaymentCore\Model\ResourceModel\Quote as QuoteResource;
+use Magento\Framework\Exception\LocalizedException;
+use Worldline\CreditCard\Model\ReturnRequestProcessor;
+use Worldline\PaymentCore\Model\OrderState;
 
 class ReturnThreeDSecure extends Action
 {
-    public const SUCCESS_URL = 'checkout/onepage/success';
-    public const FAIL_URL = 'wl_creditcard/returns/failed';
+    private const SUCCESS_URL = 'checkout/onepage/success';
+    private const WAITING_URL = 'worldline/returns/waiting';
+    private const FAIL_URL = 'worldline/returns/failed';
 
     /**
-     * @var QuoteResource
+     * @var ReturnRequestProcessor
      */
-    private $quoteResource;
-
-    /**
-     * @var Session
-     */
-    private $checkoutSession;
-
-    /**
-     * @var OrderFactory
-     */
-    private $orderFactory;
+    private $returnRequestProcessor;
 
     public function __construct(
         Context $context,
-        QuoteResource $quoteResource,
-        Session $checkoutSession,
-        OrderFactory $orderFactory
+        ReturnRequestProcessor $returnRequestProcessor
     ) {
         parent::__construct($context);
-        $this->quoteResource = $quoteResource;
-        $this->checkoutSession = $checkoutSession;
-        $this->orderFactory = $orderFactory;
+        $this->returnRequestProcessor = $returnRequestProcessor;
     }
 
     /**
@@ -51,39 +38,19 @@ class ReturnThreeDSecure extends Action
      */
     public function execute(): ResultInterface
     {
-        $paymentId = $this->getRequest()->getParam('paymentId');
-        $returnId = $this->getRequest()->getParam('RETURNMAC');
+        try {
+            $paymentId = (string)$this->getRequest()->getParam('paymentId');
 
-        if (!$paymentId || !$returnId) {
+            /** @var OrderState $orderState */
+            $orderState = $this->returnRequestProcessor->processRequest($paymentId);
+            if ($orderState->getState() === ReturnRequestProcessor::WAITING_STATE) {
+                return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)
+                    ->setPath(self::WAITING_URL, ['incrementId' => $orderState->getIncrementId()]);
+            }
+
+            return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setPath(self::SUCCESS_URL);
+        } catch (LocalizedException $exception) {
             return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setPath(self::FAIL_URL);
         }
-
-        // phpcs:ignore Magento2.Functions.DiscouragedFunction
-        sleep(2); // wait for the webhook
-
-        $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($returnId);
-        $order = $this->orderFactory->create()->loadByIncrementId($quote->getReservedOrderId());
-
-        if (!$order->getId()) {
-            $this->messageManager->addSuccessMessage(__(
-                'Thank you for your order %1.'
-                . ' Your order is still being processed and you will receive a confirmation e-mail.'
-                . ' Please contact us in case you don\'t receive the confirmation within 10 minutes.',
-                $quote->getReservedOrderId()
-            ));
-            $this->checkoutSession->clearQuote();
-            return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setPath(self::FAIL_URL);
-        }
-
-        if ($order->getPayment()->getAdditionalInformation('RETURNMAC') != $returnId) {
-            return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setPath(self::FAIL_URL);
-        }
-
-        $this->checkoutSession->setLastRealOrderId($quote->getReservedOrderId());
-        $this->checkoutSession->setLastOrderId($order->getId());
-        $this->checkoutSession->setLastQuoteId($quote->getId());
-        $this->checkoutSession->setLastSuccessQuoteId($quote->getId());
-
-        return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setPath(self::SUCCESS_URL);
     }
 }

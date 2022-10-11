@@ -10,6 +10,9 @@ use Worldline\PaymentCore\Model\Config\WorldlineConfig;
 
 class Request
 {
+    /**
+     * @var array
+     */
     private $cachedRequests = [];
 
     /**
@@ -35,14 +38,15 @@ class Request
      * @link: https://support.direct.ingenico.com/en/documentation/api/reference/#operation/GetPaymentApi
      *
      * @param string $paymentId
+     * @param int|null $storeId
      * @return PaymentResponse
      * @throws \Exception
      */
-    public function create(string $paymentId): PaymentResponse
+    public function create(string $paymentId, ?int $storeId = null): PaymentResponse
     {
         if (!isset($this->cachedRequests[$paymentId])) {
-            $this->cachedRequests[$paymentId] = $this->clientProvider->getClient()
-                ->merchant($this->worldlineConfig->getMerchantId())
+            $this->cachedRequests[$paymentId] = $this->clientProvider->getClient($storeId)
+                ->merchant($this->worldlineConfig->getMerchantId($storeId))
                 ->payments()
                 ->getPayment($paymentId);
         }
