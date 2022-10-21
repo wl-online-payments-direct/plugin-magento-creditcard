@@ -4,88 +4,46 @@ declare(strict_types=1);
 
 namespace  Worldline\CreditCard\UI\ConfigProvider;
 
-use Exception;
-use Magento\Framework\Locale\Resolver as LocalResolver;
-use OnlinePayments\Sdk\Domain\CreateHostedTokenizationRequestFactory;
 use OnlinePayments\Sdk\Domain\CreateHostedTokenizationResponse;
-use Worldline\CreditCard\Gateway\Config\Config;
-use Worldline\PaymentCore\Model\ClientProvider;
-use Worldline\PaymentCore\Model\Config\WorldlineConfig;
+use Worldline\CreditCard\Service\HostedTokenizationSession\CreateRequest;
+use Worldline\CreditCard\Service\HostedTokenizationSession\CreateRequestBodyBuilder;
 
 class CreateHostedTokenizationResponseProcessor
 {
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var WorldlineConfig
-     */
-    private $worldlineConfig;
-
-    /**
-     * @var ClientProvider
-     */
-    private $modelClient;
-
-    /**
-     * @var VaultCards
-     */
-    private $vaultCards;
-
     /**
      * @var ExpiredAndInvalidTokensHandler
      */
     private $expiredAndInvalidTokensHandler;
 
     /**
-     * @var LocalResolver
+     * @var CreateRequestBodyBuilder
      */
-    private $localResolver;
+    private $createRequestBodyBuilder;
 
     /**
-     * @var CreateHostedTokenizationRequestFactory
+     * @var CreateRequest
      */
-    private $createHostedTokenizationRequestFactory;
+    private $createRequest;
 
     public function __construct(
-        Config $config,
-        WorldlineConfig $worldlineConfig,
-        ClientProvider $modelClient,
-        VaultCards $vaultCards,
         ExpiredAndInvalidTokensHandler $expiredAndInvalidTokensHandler,
-        LocalResolver $localResolver,
-        CreateHostedTokenizationRequestFactory $createHostedTokenizationRequestFactory
+        CreateRequestBodyBuilder $createRequestBodyBuilder,
+        CreateRequest $createRequest
     ) {
-        $this->config = $config;
-        $this->worldlineConfig = $worldlineConfig;
-        $this->modelClient = $modelClient;
-        $this->vaultCards = $vaultCards;
         $this->expiredAndInvalidTokensHandler = $expiredAndInvalidTokensHandler;
-        $this->localResolver = $localResolver;
-        $this->createHostedTokenizationRequestFactory = $createHostedTokenizationRequestFactory;
+        $this->createRequestBodyBuilder = $createRequestBodyBuilder;
+        $this->createRequest = $createRequest;
     }
 
     /**
      * @param int|null $storeId
      * @return CreateHostedTokenizationResponse
-     * @throws Exception
+     * @throws \Exception
      */
     public function buildAndProcess(?int $storeId = null): CreateHostedTokenizationResponse
     {
-        $merchantId = $this->worldlineConfig->getMerchantId($storeId);
-
-        $createHostedTokenizationRequest = $this->createHostedTokenizationRequestFactory->create();
-        $createHostedTokenizationRequest->setAskConsumerConsent(true);
-        $createHostedTokenizationRequest->setVariant($this->config->getTemplateId());
-        $createHostedTokenizationRequest->setLocale($this->localResolver->getLocale());
-
-        $this->vaultCards->setCurrentCustomerTokens($createHostedTokenizationRequest);
-        $createHostedTokenizationResponse = $this->modelClient->getClient($storeId)
-            ->merchant($merchantId)
-            ->hostedTokenization()
-            ->createHostedTokenization($createHostedTokenizationRequest);
+        $createHostedTokenizationRequest = $this->createRequestBodyBuilder->build($storeId);
+        $createHostedTokenizationResponse = $this->createRequest->create($createHostedTokenizationRequest, $storeId);
 
         $this->expiredAndInvalidTokensHandler->processExpiredAndInvalidTokens(array_merge(
             $createHostedTokenizationResponse->getInvalidTokens(),

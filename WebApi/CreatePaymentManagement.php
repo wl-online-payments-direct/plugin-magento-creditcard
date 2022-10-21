@@ -15,6 +15,7 @@ use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use OnlinePayments\Sdk\Domain\MerchantAction;
 use Worldline\CreditCard\Api\CreatePaymentManagementInterface;
+use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\CreditCard\Service\Creator\Request;
 use Worldline\CreditCard\Service\Creator\RequestBuilder;
 use Worldline\PaymentCore\Model\DataAssigner\DataAssignerInterface;
@@ -131,6 +132,7 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
         $payment = $quote->getPayment();
 
         $additionalData = $paymentMethod->getAdditionalData();
+        $additionalData = array_merge((array)$paymentMethod->getAdditionalInformation(), (array)$additionalData);
         $additionalData['agent'] = $this->request->getHeader('accept');
         $additionalData['user-agent'] = $this->request->getHeader('user-agent');
 
@@ -145,7 +147,7 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
         $request = $this->createRequestBuilder->build($quote);
         $response = $this->createRequest->create($request, (int)$quote->getStoreId());
 
-        $payment->setAdditionalInformation('payment_id', $response->getPayment()->getId());
+        $payment->setAdditionalInformation(PaymentDataBuilder::PAYMENT_ID, $response->getPayment()->getId());
 
         $action = $response->getMerchantAction();
         $redirectUrl = '';

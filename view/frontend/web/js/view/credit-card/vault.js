@@ -38,8 +38,8 @@ define([
 
             if (hostedTokenizationId) {
                 let additionalData = deviceData.getData();
-                additionalData.hosted_tokenization_id = hostedTokenizationId;
                 additionalData.public_hash = this.public_hash;
+                additionalData.hosted_tokenization_id = hostedTokenizationId;
                 data.additional_data = additionalData;
             }
 

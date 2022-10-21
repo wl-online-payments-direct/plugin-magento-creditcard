@@ -37,6 +37,14 @@
         </arguments>
     </type>
 
+    <type name="Worldline\CreditCard\Gateway\Config\Config">
+        <arguments>
+            <argument name="extendedConfigData" xsi:type="array">
+                <item name="worldline_cc_vault_active" xsi:type="string">payment/worldline_cc_vault/active</item>
+            </argument>
+        </arguments>
+    </type>
+
     <!-- Plugin -->
     <type name="Magento\Payment\Model\CcConfigProvider">
         <plugin name="Worldline_CreditCard::credit_card_config_provider"

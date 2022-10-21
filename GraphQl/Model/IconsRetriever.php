@@ -32,10 +32,6 @@ class IconsRetriever implements IconsRetrieverInterface
         return $this->getIconsDetails($icons);
     }
 
-    /**
-     * @param array $icons
-     * @return array
-     */
     private function getIconsDetails(array $icons): array
     {
         $iconsDetails = [];

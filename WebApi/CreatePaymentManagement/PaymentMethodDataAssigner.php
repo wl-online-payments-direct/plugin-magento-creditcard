@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Worldline\CreditCard\WebApi\CreatePaymentManagement;
 
 use Magento\Quote\Api\Data\PaymentInterface;
+use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\PaymentCore\Model\DataAssigner\DataAssignerInterface;
 use Worldline\CreditCard\Service\HostedTokenizationSession\Request as RequestHostedTokenizationSession;
 
 class PaymentMethodDataAssigner implements DataAssignerInterface
 {
+    public const PAYMENT_PRODUCT_ID = 'payment_product_id';
+
     /**
      * @var RequestHostedTokenizationSession
      */
@@ -33,8 +36,8 @@ class PaymentMethodDataAssigner implements DataAssignerInterface
             = $this->requestHostedTokenizationSession->execute($hostedTokenizationId, $storeId);
 
         $tokenResponse = $createHostedTokenizationResponse->getToken();
-        $payment->setAdditionalInformation('token_id', $tokenResponse->getId() ?: '');
-        $payment->setAdditionalInformation('payment_product_id', $tokenResponse->getPaymentProductId());
+        $payment->setAdditionalInformation(PaymentDataBuilder::TOKEN_ID, $tokenResponse->getId() ?: '');
+        $payment->setAdditionalInformation(self::PAYMENT_PRODUCT_ID, (int)$tokenResponse->getPaymentProductId());
         $payment->setAdditionalInformation(
             'card_number',
             mb_substr($tokenResponse->getCard()->getAlias(), -4)
