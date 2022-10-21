@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\Service\Creator\Request;
 
+use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use OnlinePayments\Sdk\Domain\CardPaymentMethodSpecificInput;
@@ -12,6 +13,8 @@ use OnlinePayments\Sdk\Domain\RedirectionDataFactory;
 use OnlinePayments\Sdk\Domain\ThreeDSecure;
 use OnlinePayments\Sdk\Domain\ThreeDSecureFactory;
 use Worldline\CreditCard\Gateway\Config\Config;
+use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
+use Worldline\CreditCard\UI\ConfigProvider;
 
 class CardPaymentMethodSpecificInputDataBuilder
 {
@@ -41,6 +44,11 @@ class CardPaymentMethodSpecificInputDataBuilder
     private $redirectionDataFactory;
 
     /**
+     * @var ManagerInterface
+     */
+    private $eventManager;
+
+    /**
      * @var string|null
      */
     private $returnUrl;
@@ -50,13 +58,15 @@ class CardPaymentMethodSpecificInputDataBuilder
         CardPaymentMethodSpecificInputFactory $cardPaymentMethodSpecificInputFactory,
         StoreManagerInterface $storeManager,
         ThreeDSecureFactory $threeDSecureFactory,
-        RedirectionDataFactory $redirectionDataFactory
+        RedirectionDataFactory $redirectionDataFactory,
+        ManagerInterface $eventManager
     ) {
         $this->config = $config;
         $this->cardPaymentMethodSpecificInputFactory = $cardPaymentMethodSpecificInputFactory;
         $this->storeManager = $storeManager;
         $this->threeDSecureFactory = $threeDSecureFactory;
         $this->redirectionDataFactory = $redirectionDataFactory;
+        $this->eventManager = $eventManager;
     }
 
     public function build(CartInterface $quote): CardPaymentMethodSpecificInput
@@ -66,7 +76,12 @@ class CardPaymentMethodSpecificInputDataBuilder
         $cardPaymentMethodSpecificInput->setAuthorizationMode($this->getAuthorizationMode());
         $cardPaymentMethodSpecificInput->setReturnUrl($this->getReturnUrl());
         $cardPaymentMethodSpecificInput->setThreeDSecure($this->getTreeDSecure());
-        $cardPaymentMethodSpecificInput->setToken($quote->getPayment()->getAdditionalInformation('token_id'));
+        $cardPaymentMethodSpecificInput->setToken(
+            $quote->getPayment()->getAdditionalInformation(PaymentDataBuilder::TOKEN_ID)
+        );
+
+        $args = ['quote' => $quote, 'card_payment_method_specific_input' => $cardPaymentMethodSpecificInput];
+        $this->eventManager->dispatch(ConfigProvider::CODE . '_card_payment_method_specific_input_builder', $args);
 
         return $cardPaymentMethodSpecificInput;
     }

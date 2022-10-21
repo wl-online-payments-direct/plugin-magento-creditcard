@@ -10,6 +10,7 @@ use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Config\Config as PaymentGatewayConfig;
+use Magento\Store\Model\ScopeInterface;
 use Worldline\CreditCard\UI\ConfigProvider;
 
 class Config extends PaymentGatewayConfig
@@ -34,15 +35,28 @@ class Config extends PaymentGatewayConfig
      */
     private $appState;
 
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * @var array
+     */
+    private $extendedConfigData;
+
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         UrlInterface $urlBuilder,
         State $appState,
-        $pathPattern = PaymentGatewayConfig::DEFAULT_PATH_PATTERN
+        $pathPattern = PaymentGatewayConfig::DEFAULT_PATH_PATTERN,
+        ?array $extendedConfigData = []
     ) {
         parent::__construct($scopeConfig, ConfigProvider::CODE, $pathPattern);
         $this->urlBuilder = $urlBuilder;
         $this->appState = $appState;
+        $this->scopeConfig = $scopeConfig;
+        $this->extendedConfigData = $extendedConfigData;
     }
 
     public function getTemplateId($storeId = null): string
@@ -89,5 +103,14 @@ class Config extends PaymentGatewayConfig
     public function getCcTypes(?int $storeId = null): string
     {
         return (string) $this->getValue(self::CC_TYPES, $storeId);
+    }
+
+    public function isVaultActive(?int $storeId = null): bool
+    {
+        return (bool) $this->scopeConfig->getValue(
+            $this->extendedConfigData['worldline_cc_vault_active'],
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 }

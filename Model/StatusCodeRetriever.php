@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Worldline\CreditCard\Model;
 
 use Magento\Quote\Model\Quote\Payment;
+use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\CreditCard\Service\Getter\Request as GetterRequest;
 use Worldline\PaymentCore\Api\TransactionWLResponseManagerInterface;
 use Worldline\PaymentCore\Model\PaymentStatusCode\StatusCodeRetrieverInterface;
@@ -31,7 +32,7 @@ class StatusCodeRetriever implements StatusCodeRetrieverInterface
 
     public function getStatusCode(Payment $payment): ?int
     {
-        $paymentId = (string)$payment->getAdditionalInformation('payment_id');
+        $paymentId = (string)$payment->getAdditionalInformation(PaymentDataBuilder::PAYMENT_ID);
         if (!$paymentId) {
             return null;
         }

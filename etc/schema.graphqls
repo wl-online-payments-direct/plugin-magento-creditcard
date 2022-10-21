@@ -16,11 +16,23 @@ input PaymentMethodInput {
 input WorldlineCcInput {
     is_active_payment_token_enabler: Boolean! @doc(description:"States whether an entered by a customer credit/debit card should be tokenized for later usage. Required only if Vault is enabled for Worldline payment integration.")
     hosted_tokenization_id: String @doc(description:"Contains a hosted tokenization id session provided by Worldline SDK and should be sent with sale transaction details to the Worldline payment gateway.")
+    color_depth: String
+    java_enabled: Boolean
+    locale: String
+    screen_height: String
+    screen_width: String
+    timezone_offset_utc_minutes: String
 }
 
 input WorldlineVaultInput {
     public_hash: String!
     hosted_tokenization_id: String @doc(description:"Contains a hosted tokenization id session provided by Worldline SDK and should be sent with sale transaction details to the Worldline payment gateway.")
+    color_depth: String
+    java_enabled: Boolean
+    locale: String
+    screen_height: String
+    screen_width: String
+    timezone_offset_utc_minutes: String
 }
 
 type CheckRedirectOutput {

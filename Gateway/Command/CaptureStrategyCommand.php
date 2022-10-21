@@ -15,6 +15,7 @@ use Magento\Payment\Gateway\Helper\ContextHelper;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
+use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\PaymentCore\Gateway\SubjectReader;
 
 class CaptureStrategyCommand implements CommandInterface
@@ -114,7 +115,7 @@ class CaptureStrategyCommand implements CommandInterface
         $this->searchCriteriaBuilder->addFilters(
             [
                 $this->filterBuilder
-                    ->setField('payment_id')
+                    ->setField(PaymentDataBuilder::PAYMENT_ID)
                     ->setValue($payment->getId())
                     ->create(),
             ]

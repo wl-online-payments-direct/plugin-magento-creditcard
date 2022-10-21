@@ -8,13 +8,13 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use OnlinePayments\Sdk\Domain\AmountOfMoneyFactory;
 use OnlinePayments\Sdk\Domain\OrderReferencesFactory;
 use Worldline\PaymentCore\Gateway\SubjectReader;
-use Worldline\CreditCard\UI\ConfigProvider;
 
 class PaymentDataBuilder implements BuilderInterface
 {
     public const AMOUNT = 'amount';
     public const REFERENCES = 'references';
     public const TOKEN = 'token';
+    public const TOKEN_ID = 'token_id';
     public const PAYMENT_ID = 'payment_id';
     public const STORE_ID = 'store_id';
 
@@ -58,7 +58,7 @@ class PaymentDataBuilder implements BuilderInterface
         $references = $this->orderReferencesFactory->create();
         $references->setMerchantReference($order->getOrderIncrementId());
 
-        $token = $payment->getAdditionalInformation('token_id');
+        $token = $payment->getAdditionalInformation(self::TOKEN_ID);
         if (empty($token)) {
             if ($vaultPaymentToken = $payment->getExtensionAttributes()->getVaultPaymentToken()) {
                 $token = $vaultPaymentToken->getGatewayToken();
@@ -70,7 +70,7 @@ class PaymentDataBuilder implements BuilderInterface
             self::STORE_ID => (int)$order->getStoreId(),
             self::REFERENCES => $references,
             self::TOKEN => $token,
-            self::PAYMENT_ID => $payment->getAdditionalInformation('payment_id'),
+            self::PAYMENT_ID => $payment->getAdditionalInformation(self::PAYMENT_ID),
         ];
     }
 }
