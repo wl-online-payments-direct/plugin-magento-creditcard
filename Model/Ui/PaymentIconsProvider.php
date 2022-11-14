@@ -8,6 +8,7 @@ use Magento\Framework\View\Asset\Source as AssetSource;
 use Worldline\CreditCard\Gateway\Config\Config;
 use Worldline\CreditCard\Model\Config\Source\CreditCardTypeOptions;
 use Worldline\PaymentCore\Model\Ui\PaymentIconsProvider as GeneralIconsProvider;
+use Worldline\PaymentCore\Model\Ui\PaymentProductsProvider;
 
 class PaymentIconsProvider
 {
@@ -31,24 +32,33 @@ class PaymentIconsProvider
      */
     private $generalIconsProvider;
 
+    /**
+     * @var PaymentProductsProvider
+     */
+    private $paymentProductsProvider;
+
     public function __construct(
         AssetSource $assetSource,
         Config $config,
         CreditCardTypeOptions $options,
-        GeneralIconsProvider $generalIconsProvider
+        GeneralIconsProvider $generalIconsProvider,
+        PaymentProductsProvider $paymentProductsProvider
     ) {
         $this->assetSource = $assetSource;
         $this->config = $config;
         $this->options = $options;
         $this->generalIconsProvider = $generalIconsProvider;
+        $this->paymentProductsProvider = $paymentProductsProvider;
     }
 
-    public function getIcons(?int $storeId = null): array
+    public function getIcons(int $storeId): array
     {
         $cCTypes = explode(',', $this->config->getCcTypes($storeId));
         if (empty($cCTypes)) {
             return [];
         }
+
+        $cCTypes = $this->unsetUnavailableCCTypes($cCTypes, $storeId);
 
         $icons = [];
         $labels = $this->getLabels();
@@ -70,6 +80,24 @@ class PaymentIconsProvider
         }
 
         return $icons;
+    }
+
+    public function unsetUnavailableCCTypes(array $cCTypes, int $storeId): array
+    {
+        $paymentProducts = $this->paymentProductsProvider->getPaymentProducts($storeId);
+        if (!$paymentProducts) {
+            return [];
+        }
+
+        foreach ($cCTypes as $key => $type) {
+            if (isset(CreditCardTypeOptions::PAYMENT_PRODUCTS[$type])
+                && !array_key_exists(CreditCardTypeOptions::PAYMENT_PRODUCTS[$type], $paymentProducts)
+            ) {
+                unset($cCTypes[$key]);
+            }
+        }
+
+        return $cCTypes;
     }
 
     public function getLabels(): array

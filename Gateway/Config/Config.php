@@ -16,9 +16,11 @@ use Worldline\CreditCard\UI\ConfigProvider;
 class Config extends PaymentGatewayConfig
 {
     public const AUTHORIZATION_MODE = 'authorization_mode';
+    public const PAYMENT_ACTION = 'payment_action';
     public const AUTHORIZATION_MODE_FINAL = 'FINAL_AUTHORIZATION';
     public const AUTHORIZATION_MODE_PRE = 'PRE_AUTHORIZATION';
     public const AUTHORIZATION_MODE_SALE = 'SALE';
+    public const AUTHORIZE_CAPTURE = 'authorize_capture';
     public const CC_TYPES = 'cc_types';
     public const TEMPLATE_ID = 'template_id';
     public const SKIP_3D = 'skip_3d';
@@ -59,13 +61,17 @@ class Config extends PaymentGatewayConfig
         $this->extendedConfigData = $extendedConfigData;
     }
 
-    public function getTemplateId($storeId = null): string
+    public function getTemplateId(?int $storeId = null): string
     {
         return (string) $this->getValue(self::TEMPLATE_ID, $storeId);
     }
 
-    public function getAuthorizationMode($storeId = null): string
+    public function getAuthorizationMode(?int $storeId = null): string
     {
+        if ($this->getValue(self::PAYMENT_ACTION, $storeId) === self::AUTHORIZE_CAPTURE) {
+            return self::AUTHORIZATION_MODE_SALE;
+        }
+
         $authorizationMode = (string) $this->getValue(self::AUTHORIZATION_MODE, $storeId);
         switch ($authorizationMode) {
             case 'pre':
@@ -75,7 +81,7 @@ class Config extends PaymentGatewayConfig
         }
     }
 
-    public function hasSkipAuthentication($storeId = null): bool
+    public function hasSkipAuthentication(?int $storeId = null): bool
     {
         return (bool) $this->getValue(self::SKIP_3D, $storeId);
     }

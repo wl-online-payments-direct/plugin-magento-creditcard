@@ -1,6 +1,11 @@
 # Worldline Online Payments
 
+## Credit card
+
 Change log:
+
+1.2.0
+- Bug fixes and general code improvements
 
 1.1.1
 - Hide the checkbox "save card" for iFrame checkout (Credit Card payment method) for guests and when the vault is disabled

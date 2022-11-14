@@ -6,7 +6,6 @@ namespace Worldline\CreditCard\Service\Creator\Request;
 
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use OnlinePayments\Sdk\Domain\CardPaymentMethodSpecificInput;
 use OnlinePayments\Sdk\Domain\CardPaymentMethodSpecificInputFactory;
 use OnlinePayments\Sdk\Domain\RedirectionDataFactory;
@@ -27,11 +26,6 @@ class CardPaymentMethodSpecificInputDataBuilder
      * @var CardPaymentMethodSpecificInputFactory
      */
     private $cardPaymentMethodSpecificInputFactory;
-
-    /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
 
     /**
      * @var ThreeDSecureFactory
@@ -56,14 +50,12 @@ class CardPaymentMethodSpecificInputDataBuilder
     public function __construct(
         Config $config,
         CardPaymentMethodSpecificInputFactory $cardPaymentMethodSpecificInputFactory,
-        StoreManagerInterface $storeManager,
         ThreeDSecureFactory $threeDSecureFactory,
         RedirectionDataFactory $redirectionDataFactory,
         ManagerInterface $eventManager
     ) {
         $this->config = $config;
         $this->cardPaymentMethodSpecificInputFactory = $cardPaymentMethodSpecificInputFactory;
-        $this->storeManager = $storeManager;
         $this->threeDSecureFactory = $threeDSecureFactory;
         $this->redirectionDataFactory = $redirectionDataFactory;
         $this->eventManager = $eventManager;
@@ -71,11 +63,12 @@ class CardPaymentMethodSpecificInputDataBuilder
 
     public function build(CartInterface $quote): CardPaymentMethodSpecificInput
     {
+        $storeId = (int)$quote->getStoreId();
         $cardPaymentMethodSpecificInput = $this->cardPaymentMethodSpecificInputFactory->create();
 
-        $cardPaymentMethodSpecificInput->setAuthorizationMode($this->getAuthorizationMode());
-        $cardPaymentMethodSpecificInput->setReturnUrl($this->getReturnUrl());
-        $cardPaymentMethodSpecificInput->setThreeDSecure($this->getTreeDSecure());
+        $cardPaymentMethodSpecificInput->setReturnUrl($this->getReturnUrl($storeId));
+        $cardPaymentMethodSpecificInput->setThreeDSecure($this->getThreeDSecure($storeId));
+        $cardPaymentMethodSpecificInput->setAuthorizationMode($this->config->getAuthorizationMode($storeId));
         $cardPaymentMethodSpecificInput->setToken(
             $quote->getPayment()->getAdditionalInformation(PaymentDataBuilder::TOKEN_ID)
         );
@@ -86,31 +79,21 @@ class CardPaymentMethodSpecificInputDataBuilder
         return $cardPaymentMethodSpecificInput;
     }
 
-    private function getAuthorizationMode()
-    {
-        if ($this->config->getValue('payment_action') === 'authorize_capture') {
-            return Config::AUTHORIZATION_MODE_SALE;
-        }
-
-        return $this->config->getAuthorizationMode();
-    }
-
-    private function getReturnUrl(): string
+    private function getReturnUrl(int $storeId): string
     {
         if (null === $this->returnUrl) {
-            $storeId = (int) $this->storeManager->getStore()->getId();
             $this->returnUrl = $this->config->getReturnUrl($storeId);
         }
 
         return $this->returnUrl;
     }
 
-    private function getTreeDSecure(): ThreeDSecure
+    private function getThreeDSecure(int $storeId): ThreeDSecure
     {
         $threeDSecure = $this->threeDSecureFactory->create();
-        $threeDSecure->setSkipAuthentication($this->config->hasSkipAuthentication());
+        $threeDSecure->setSkipAuthentication($this->config->hasSkipAuthentication($storeId));
         $redirectionData = $this->redirectionDataFactory->create();
-        $redirectionData->setReturnUrl($this->getReturnUrl());
+        $redirectionData->setReturnUrl($this->getReturnUrl($storeId));
         $threeDSecure->setRedirectionData($redirectionData);
 
         return $threeDSecure;
