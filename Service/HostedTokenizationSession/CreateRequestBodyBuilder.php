@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Worldline\CreditCard\Service\HostedTokenizationSession;
 
 use Magento\Authorization\Model\UserContextInterface;
+use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Locale\Resolver as LocalResolver;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Model\PaymentTokenManagement;
@@ -15,6 +16,8 @@ use Worldline\CreditCard\UI\ConfigProvider;
 
 class CreateRequestBodyBuilder
 {
+    public const CREATE_HOSTED_TOKENIZATION_REQUEST = 'create_hosted_tokenization_request';
+
     /**
      * @var Config
      */
@@ -24,6 +27,11 @@ class CreateRequestBodyBuilder
      * @var LocalResolver
      */
     private $localResolver;
+
+    /**
+     * @var ManagerInterface
+     */
+    private $eventManager;
 
     /**
      * @var CreateHostedTokenizationRequestFactory
@@ -43,12 +51,14 @@ class CreateRequestBodyBuilder
     public function __construct(
         Config $config,
         LocalResolver $localResolver,
+        ManagerInterface $eventManager,
         CreateHostedTokenizationRequestFactory $createHostedTokenizationRequestFactory,
         UserContextInterface $userContext,
         PaymentTokenManagement $paymentTokenManagement
     ) {
         $this->config = $config;
         $this->localResolver = $localResolver;
+        $this->eventManager = $eventManager;
         $this->createHostedTokenizationRequestFactory = $createHostedTokenizationRequestFactory;
         $this->userContext = $userContext;
         $this->paymentTokenManagement = $paymentTokenManagement;
@@ -66,6 +76,9 @@ class CreateRequestBodyBuilder
         $createHostedTokenizationRequest->setVariant($this->config->getTemplateId($storeId));
         $createHostedTokenizationRequest->setLocale($this->localResolver->getLocale());
         $this->setCurrentCustomerTokens($createHostedTokenizationRequest);
+
+        $args = [self::CREATE_HOSTED_TOKENIZATION_REQUEST => $createHostedTokenizationRequest];
+        $this->eventManager->dispatch(ConfigProvider::CODE . '_create_hosted_tokenization_request_builder', $args);
 
         return $createHostedTokenizationRequest;
     }

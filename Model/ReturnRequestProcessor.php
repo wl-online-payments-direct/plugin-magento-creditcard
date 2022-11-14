@@ -47,9 +47,9 @@ class ReturnRequestProcessor
         $this->orderStateFactory = $orderStateFactory;
     }
 
-    public function processRequest(string $hostedTokenizationId): OrderState
+    public function processRequest(string $paymentId): OrderState
     {
-        $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($hostedTokenizationId);
+        $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($paymentId);
         $reservedOrderId = (string)$quote->getReservedOrderId();
         /** @var OrderState $orderState */
         $orderState = $this->orderStateFactory->create();

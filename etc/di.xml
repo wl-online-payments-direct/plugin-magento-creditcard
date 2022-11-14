@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference type="Worldline\CreditCard\WebApi\CreatePaymentManagement" for="Worldline\CreditCard\Api\CreatePaymentManagementInterface" />
+    <preference type="Worldline\CreditCard\Service\CapturePayment\CapturePayment" for="Worldline\CreditCard\Api\Service\CapturePaymentInterface" />
 
     <type name="Worldline\CreditCard\WebApi\CreatePaymentManagement">
         <arguments>
@@ -44,13 +45,6 @@
             </argument>
         </arguments>
     </type>
-
-    <!-- Plugin -->
-    <type name="Magento\Payment\Model\CcConfigProvider">
-        <plugin name="Worldline_CreditCard::credit_card_config_provider"
-                type="Worldline\CreditCard\Plugin\Model\ConfigProvider"/>
-    </type>
-    <!-- End Plugin -->
 
     <!-- ______________________________________ Payment method configuration ______________________________________ -->
 
@@ -213,9 +207,7 @@
     <virtualType name="Worldline\CreditCard\Gateway\Request\VaultAuthorizeBuilder\Virtual" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="customer" xsi:type="string">Worldline\CreditCard\Gateway\Request\CustomerDataBuilder</item>
                 <item name="payment" xsi:type="string">Worldline\CreditCard\Gateway\Request\PaymentDataBuilder</item>
-                <item name="address" xsi:type="string">Worldline\CreditCard\Gateway\Request\AddressDataBuilder</item>
                 <item name="3dsecure" xsi:type="string">Worldline\CreditCard\Gateway\Request\VaultThreeDSecureDataBuilder</item>
             </argument>
         </arguments>
@@ -260,9 +252,7 @@
     <virtualType name="Worldline\CreditCard\Gateway\Request\AuthorizeBuilder\Virtual" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="customer" xsi:type="string">Worldline\CreditCard\Gateway\Request\CustomerDataBuilder</item>
                 <item name="payment" xsi:type="string">Worldline\CreditCard\Gateway\Request\PaymentDataBuilder</item>
-                <item name="address" xsi:type="string">Worldline\CreditCard\Gateway\Request\AddressDataBuilder</item>
                 <item name="vault" xsi:type="string">Worldline\CreditCard\Gateway\Request\VaultDataBuilder</item>
                 <item name="3dsecure" xsi:type="string">Worldline\CreditCard\Gateway\Request\ThreeDSecureDataBuilder</item>
             </argument>

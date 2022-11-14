@@ -9,6 +9,7 @@ use Worldline\CreditCard\Service\Getter\Request as GetterRequest;
 use Worldline\PaymentCore\Api\TransactionWLResponseManagerInterface;
 use Worldline\PaymentCore\Model\PaymentStatusCode\StatusCodeRetrieverInterface;
 use Worldline\PaymentCore\Model\Transaction\TransactionStatusInterface;
+use Worldline\PaymentCore\Api\PaymentManagerInterface;
 
 class StatusCodeRetriever implements StatusCodeRetrieverInterface
 {
@@ -22,12 +23,19 @@ class StatusCodeRetriever implements StatusCodeRetrieverInterface
      */
     private $transactionWLResponseManager;
 
+    /**
+     * @var PaymentManagerInterface
+     */
+    private $paymentManager;
+
     public function __construct(
         GetterRequest $getterRequest,
-        TransactionWLResponseManagerInterface $transactionWLResponseManager
+        TransactionWLResponseManagerInterface $transactionWLResponseManager,
+        PaymentManagerInterface $paymentManager
     ) {
         $this->getterRequest = $getterRequest;
         $this->transactionWLResponseManager = $transactionWLResponseManager;
+        $this->paymentManager = $paymentManager;
     }
 
     public function getStatusCode(Payment $payment): ?int
@@ -44,6 +52,7 @@ class StatusCodeRetriever implements StatusCodeRetrieverInterface
             $statusCode,
             [TransactionStatusInterface::PENDING_CAPTURE_CODE, TransactionStatusInterface::CAPTURED_CODE]
         )) {
+            $this->paymentManager->savePayment($paymentResponse);
             $this->transactionWLResponseManager->saveTransaction($paymentResponse);
         }
 

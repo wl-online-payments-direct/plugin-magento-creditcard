@@ -4,49 +4,39 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\Gateway\Http\Client;
 
-use OnlinePayments\Sdk\Domain\CapturePaymentRequest;
+use Magento\Framework\Exception\LocalizedException;
 use OnlinePayments\Sdk\Domain\CaptureResponse;
 use Psr\Log\LoggerInterface;
-use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
+use Worldline\CreditCard\Api\Service\CapturePaymentInterface;
+use Worldline\CreditCard\Gateway\Request\CaptureDataBuilder;
 use Worldline\PaymentCore\Gateway\Http\Client\AbstractTransaction;
-use Worldline\PaymentCore\Model\ClientProvider;
-use Worldline\PaymentCore\Model\Config\WorldlineConfig;
 
 class TransactionSubmitForSettlement extends AbstractTransaction
 {
     /**
-     * @var \Worldline\PaymentCore\Model\Config\WorldlineConfig
+     * @var CapturePaymentInterface
      */
-    private $worldlineConfig;
-
-    /**
-     * @var ClientProvider
-     */
-    private $modelClient;
+    private $capturePayment;
 
     public function __construct(
         LoggerInterface $logger,
-        WorldlineConfig $worldlineConfig,
-        ClientProvider $modelClient
+        CapturePaymentInterface $capturePayment
     ) {
         parent::__construct($logger);
-        $this->worldlineConfig = $worldlineConfig;
-        $this->modelClient = $modelClient;
+        $this->capturePayment = $capturePayment;
     }
 
+    /**
+     * @param array $data
+     * @return CaptureResponse
+     * @throws LocalizedException
+     */
     protected function process(array $data): CaptureResponse
     {
-        $capturePaymentRequest = new CapturePaymentRequest();
-        $capturePaymentRequest->setAmount($data['amount']);
-
-        $client = $this->modelClient->getClient($data[PaymentDataBuilder::STORE_ID]);
-        $merchantId = $this->worldlineConfig->getMerchantId($data[PaymentDataBuilder::STORE_ID]);
-        // @TODO implement exceptions catching
-        $capturePaymentResponse = $client
-            ->merchant($merchantId)
-            ->payments()
-            ->capturePayment($data['transaction_id'], $capturePaymentRequest);
-
-        return $capturePaymentResponse;
+        return $this->capturePayment->execute(
+            $data[CaptureDataBuilder::PAYMENT_ID],
+            $data[CaptureDataBuilder::CAPTURE_PAYMENT_REQUEST],
+            $data[CaptureDataBuilder::STORE_ID]
+        );
     }
 }
