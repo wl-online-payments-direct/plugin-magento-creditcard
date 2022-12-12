@@ -9,6 +9,9 @@ use Worldline\PaymentCore\Api\Data\OrderStateInterfaceFactory;
 use Worldline\PaymentCore\Model\OrderState;
 use Worldline\PaymentCore\Model\ResourceModel\Quote as QuoteResource;
 
+/**
+ * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
+ */
 class ReturnRequestProcessor
 {
     public const SUCCESS_STATE = 'success';

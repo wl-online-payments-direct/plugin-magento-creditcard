@@ -40,8 +40,13 @@ class CreateRequest implements ResolverInterface
      * @throws \Exception
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
-    {
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        array $value = null,
+        array $args = null
+    ): array {
         $maskedCartId = $args['input']['cart_id'];
         if (!$maskedCartId) {
             throw new GraphQlInputException(__('Required parameter "cart_id" is missing.'));

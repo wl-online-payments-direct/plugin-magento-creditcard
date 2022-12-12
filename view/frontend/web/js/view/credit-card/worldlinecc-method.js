@@ -7,7 +7,8 @@ define([
     'Worldline_PaymentCore/js/model/message-manager',
     'Magento_Ui/js/modal/alert',
     'Magento_Checkout/js/model/full-screen-loader',
-    'mage/url'
+    'mage/url',
+    'Magento_Checkout/js/model/payment/additional-validators'
 ], function (
     $,
     Component,
@@ -17,7 +18,8 @@ define([
     messageManager,
     alert,
     fullScreenLoader,
-    urlBuilder
+    urlBuilder,
+    additionalValidators
 ) {
     'use strict';
 
@@ -122,7 +124,7 @@ define([
                 event.preventDefault();
             }
 
-            if (!this.validate() || this.isPlaceOrderActionAllowed() !== true) {
+            if (!this.validate() || !additionalValidators.validate() || this.isPlaceOrderActionAllowed() !== true) {
                 return false;
             }
 

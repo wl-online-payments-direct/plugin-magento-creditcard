@@ -6,7 +6,7 @@ namespace Worldline\CreditCard\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Worldline\CreditCard\Gateway\Config\Config;
-use Worldline\CreditCard\UI\ConfigProvider;
+use Worldline\CreditCard\Ui\ConfigProvider;
 use Worldline\PaymentCore\Model\AvailableMethodChecker;
 
 class PaymentMethodIsActive implements ObserverInterface

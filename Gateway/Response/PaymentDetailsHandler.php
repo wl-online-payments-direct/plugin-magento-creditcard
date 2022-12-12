@@ -21,12 +21,7 @@ class PaymentDetailsHandler implements HandlerInterface
         $this->subjectReader = $subjectReader;
     }
 
-    /**
-     * @param array $handlingSubject
-     * @param array $response
-     * @return void
-     */
-    public function handle(array $handlingSubject, array $response)
+    public function handle(array $handlingSubject, array $response): void
     {
         $paymentDO = $this->subjectReader->readPayment($handlingSubject);
         /** @var PaymentResponse $transaction */

@@ -4,7 +4,7 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="worldline_cc_config_provider" xsi:type="object">Worldline\CreditCard\UI\ConfigProvider</item>
+                <item name="worldline_cc_config_provider" xsi:type="object">Worldline\CreditCard\Ui\ConfigProvider</item>
             </argument>
         </arguments>
     </type>
@@ -12,7 +12,7 @@
     <type name="Magento\Vault\Model\Ui\TokensConfigProvider">
         <arguments>
             <argument name="tokenUiComponentProviders" xsi:type="array">
-                <item name="worldline_cc" xsi:type="object">Worldline\CreditCard\UI\TokenUiComponentProvider</item>
+                <item name="worldline_cc" xsi:type="object">Worldline\CreditCard\Ui\TokenUiComponentProvider</item>
             </argument>
         </arguments>
     </type>

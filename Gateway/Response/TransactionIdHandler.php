@@ -22,14 +22,7 @@ class TransactionIdHandler implements HandlerInterface
         $this->subjectReader = $subjectReader;
     }
 
-    /**
-     * Handles response
-     *
-     * @param array $handlingSubject
-     * @param array $response
-     * @return void
-     */
-    public function handle(array $handlingSubject, array $response)
+    public function handle(array $handlingSubject, array $response): void
     {
         $paymentDO = $this->subjectReader->readPayment($handlingSubject);
 
@@ -45,12 +38,7 @@ class TransactionIdHandler implements HandlerInterface
         }
     }
 
-    /**
-     * @param Payment $orderPayment
-     * @param DataObject $transaction
-     * @return void
-     */
-    protected function setTransactionId(Payment $orderPayment, DataObject $transaction)
+    protected function setTransactionId(Payment $orderPayment, DataObject $transaction): void
     {
         $orderPayment->setTransactionId($transaction->getId());
     }

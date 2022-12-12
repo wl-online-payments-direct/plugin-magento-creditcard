@@ -7,21 +7,21 @@ namespace Worldline\CreditCard\WebApi\CreatePaymentManagement;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\PaymentCore\Model\DataAssigner\DataAssignerInterface;
-use Worldline\CreditCard\Service\HostedTokenizationSession\Request as RequestHostedTokenizationSession;
+use Worldline\CreditCard\Service\HostedTokenization\GetHostedTokenizationSessionService;
 
 class PaymentMethodDataAssigner implements DataAssignerInterface
 {
     public const PAYMENT_PRODUCT_ID = 'payment_product_id';
 
     /**
-     * @var RequestHostedTokenizationSession
+     * @var GetHostedTokenizationSessionService
      */
-    private $requestHostedTokenizationSession;
+    private $getHostedTokenizationSessionService;
 
     public function __construct(
-        RequestHostedTokenizationSession $requestHostedTokenizationSession
+        GetHostedTokenizationSessionService $getHostedTokenizationSessionService
     ) {
-        $this->requestHostedTokenizationSession = $requestHostedTokenizationSession;
+        $this->getHostedTokenizationSessionService = $getHostedTokenizationSessionService;
     }
 
     public function assign(PaymentInterface $payment, array $additionalInformation): void
@@ -32,8 +32,8 @@ class PaymentMethodDataAssigner implements DataAssignerInterface
         }
 
         $storeId = (int)$payment->getMethodInstance()->getStore();
-        $createHostedTokenizationResponse
-            = $this->requestHostedTokenizationSession->execute($hostedTokenizationId, $storeId);
+        $createHostedTokenizationResponse =
+            $this->getHostedTokenizationSessionService->execute($hostedTokenizationId, $storeId);
 
         $tokenResponse = $createHostedTokenizationResponse->getToken();
         $payment->setAdditionalInformation(PaymentDataBuilder::TOKEN_ID, $tokenResponse->getId() ?: '');

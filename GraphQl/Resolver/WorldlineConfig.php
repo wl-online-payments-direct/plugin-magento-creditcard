@@ -7,7 +7,7 @@ namespace Worldline\CreditCard\GraphQl\Resolver;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Worldline\CreditCard\UI\ConfigProvider;
+use Worldline\CreditCard\Ui\ConfigProvider;
 
 /**
  * Resolver to pull URL for iFrame
@@ -40,7 +40,7 @@ class WorldlineConfig implements ResolverInterface
         ResolveInfo $info,
         array $value = null,
         array $args = null
-    ) {
+    ): array {
         $url = '';
         $icons = [];
         $config = $this->configProvider->getConfig();

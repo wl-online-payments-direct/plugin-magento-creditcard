@@ -3,21 +3,17 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\Model;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Payment;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
-use Worldline\CreditCard\Service\Getter\Request as GetterRequest;
+use Worldline\PaymentCore\Api\PaymentManagerInterface;
+use Worldline\PaymentCore\Api\Service\Payment\GetPaymentServiceInterface;
 use Worldline\PaymentCore\Api\TransactionWLResponseManagerInterface;
 use Worldline\PaymentCore\Model\PaymentStatusCode\StatusCodeRetrieverInterface;
 use Worldline\PaymentCore\Model\Transaction\TransactionStatusInterface;
-use Worldline\PaymentCore\Api\PaymentManagerInterface;
 
 class StatusCodeRetriever implements StatusCodeRetrieverInterface
 {
-    /**
-     * @var GetterRequest
-     */
-    private $getterRequest;
-
     /**
      * @var TransactionWLResponseManagerInterface
      */
@@ -28,16 +24,28 @@ class StatusCodeRetriever implements StatusCodeRetrieverInterface
      */
     private $paymentManager;
 
+    /**
+     * @var GetPaymentServiceInterface
+     */
+    private $getPaymentService;
+
     public function __construct(
-        GetterRequest $getterRequest,
         TransactionWLResponseManagerInterface $transactionWLResponseManager,
-        PaymentManagerInterface $paymentManager
+        PaymentManagerInterface $paymentManager,
+        GetPaymentServiceInterface $getPaymentService
     ) {
-        $this->getterRequest = $getterRequest;
         $this->transactionWLResponseManager = $transactionWLResponseManager;
         $this->paymentManager = $paymentManager;
+        $this->getPaymentService = $getPaymentService;
     }
 
+    /**
+     * Extract status code and save payment and transaction data
+     *
+     * @param Payment $payment
+     * @return int|null
+     * @throws LocalizedException
+     */
     public function getStatusCode(Payment $payment): ?int
     {
         $paymentId = (string)$payment->getAdditionalInformation(PaymentDataBuilder::PAYMENT_ID);
@@ -46,7 +54,7 @@ class StatusCodeRetriever implements StatusCodeRetrieverInterface
         }
 
         $storeId = (int)$payment->getMethodInstance()->getStore();
-        $paymentResponse = $this->getterRequest->create($paymentId, $storeId);
+        $paymentResponse = $this->getPaymentService->execute($paymentId, $storeId);
         $statusCode = (int)$paymentResponse->getStatusOutput()->getStatusCode();
         if (in_array(
             $statusCode,
