@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference type="Worldline\CreditCard\WebApi\CreatePaymentManagement" for="Worldline\CreditCard\Api\CreatePaymentManagementInterface" />
-    <preference type="Worldline\CreditCard\Service\CapturePayment\CapturePayment" for="Worldline\CreditCard\Api\Service\CapturePaymentInterface" />
+    <preference type="Worldline\CreditCard\Service\Payment\CreatePaymentService" for="Worldline\CreditCard\Api\Service\Payment\CreatePaymentServiceInterface" />
+    <preference type="Worldline\CreditCard\Service\HostedTokenization\CreateHostedTokenizationSessionService"
+                for="Worldline\CreditCard\Api\Service\HostedTokenization\CreateHostedTokenizationSessionServiceInterface" />
+    <preference type="Worldline\CreditCard\Service\HostedTokenization\GetHostedTokenizationSessionService"
+                for="Worldline\CreditCard\Api\Service\HostedTokenization\GetHostedTokenizationSessionServiceInterface" />
 
     <type name="Worldline\CreditCard\WebApi\CreatePaymentManagement">
         <arguments>
@@ -15,7 +19,7 @@
     <type name="Worldline\PaymentCore\Block\Customer\CardRenderer">
         <arguments>
             <argument name="paymentMethods" xsi:type="array">
-                <item name="worldline_cc" xsi:type="const">Worldline\CreditCard\UI\ConfigProvider::CODE</item>
+                <item name="worldline_cc" xsi:type="const">Worldline\CreditCard\Ui\ConfigProvider::CODE</item>
             </argument>
         </arguments>
     </type>
@@ -32,8 +36,8 @@
     <type name="Worldline\PaymentCore\Model\ResourceModel\PendingOrderProvider">
         <arguments>
             <argument name="allowedPaymentMethods" xsi:type="array">
-                <item name="worldline_cc" xsi:type="const">Worldline\CreditCard\UI\ConfigProvider::CODE</item>
-                <item name="worldline_cc_vault" xsi:type="const">Worldline\CreditCard\UI\ConfigProvider::CC_VAULT_CODE</item>
+                <item name="worldline_cc" xsi:type="const">Worldline\CreditCard\Ui\ConfigProvider::CODE</item>
+                <item name="worldline_cc_vault" xsi:type="const">Worldline\CreditCard\Ui\ConfigProvider::CC_VAULT_CODE</item>
             </argument>
         </arguments>
     </type>
@@ -50,7 +54,7 @@
 
     <virtualType name="Worldline\CreditCard\Model\Method\Adapter\Virtual" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
-            <argument name="code" xsi:type="const">\Worldline\CreditCard\UI\ConfigProvider::CODE</argument>
+            <argument name="code" xsi:type="const">\Worldline\CreditCard\Ui\ConfigProvider::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
             <argument name="infoBlockType" xsi:type="string">Worldline\CreditCard\Block\Info\Virtual</argument>
             <argument name="valueHandlerPool" xsi:type="object">Worldline\CreditCard\Gateway\Config\ValueHandlerPool\Virtual</argument>
@@ -67,8 +71,8 @@
         <arguments>
             <argument name="handlers" xsi:type="array">
                 <item name="default" xsi:type="string">Worldline\CreditCard\Gateway\Config\ConfigValueHandler\Virtual</item>
-                <item name="can_void" xsi:type="string">Worldline\CreditCard\Gateway\Response\CanVoidHandler</item>
-                <item name="can_cancel" xsi:type="string">Worldline\CreditCard\Gateway\Response\CanVoidHandler</item>
+                <item name="can_void" xsi:type="string">Worldline\PaymentCore\Gateway\Config\CanVoidHandler</item>
+                <item name="can_cancel" xsi:type="string">Worldline\PaymentCore\Gateway\Config\CanVoidHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -81,8 +85,13 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">Worldline\CreditCard\Gateway\Validator\CountryValidator\Virtual</item>
-                <item name="currency" xsi:type="string">Worldline\CreditCard\Gateway\Validator\CurrencyValidator</item>
+                <item name="currency" xsi:type="string">Worldline\CreditCard\Gateway\Validator\CurrencyValidator\Virtual</item>
             </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Worldline\CreditCard\Gateway\Validator\CurrencyValidator\Virtual" type="Worldline\PaymentCore\Gateway\Validator\CurrencyValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Worldline\CreditCard\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>
     <virtualType name="Worldline\CreditCard\Gateway\Validator\CountryValidator\Virtual" type="Magento\Payment\Gateway\Validator\CountryValidator">
@@ -109,7 +118,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="Worldline\CreditCard\Gateway\Command\CaptureStrategyCommand\Virtual" type="Worldline\CreditCard\Gateway\Command\CaptureStrategyCommand">
+    <virtualType name="Worldline\CreditCard\Gateway\Command\CaptureStrategyCommand\Virtual" type="Worldline\PaymentCore\Gateway\Command\CaptureStrategyCommand">
         <arguments>
             <argument name="commandPool" xsi:type="object">Worldline\CreditCard\Gateway\Command\CommandPool\Virtual</argument>
         </arguments>
@@ -124,7 +133,6 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="authorize" xsi:type="string">Worldline\CreditCard\Gateway\Request\AuthorizeBuilder\Virtual</item>
-                <item name="settlement" xsi:type="string">Worldline\CreditCard\Gateway\Request\SettlementDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -132,44 +140,33 @@
     <!-- Capture command  -->
     <virtualType name="Worldline\CreditCard\Gateway\Command\CaptureCommand\Virtual" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
-            <argument name="requestBuilder" xsi:type="object">Worldline\CreditCard\Gateway\Request\CaptureBuilder\Virtual</argument>
+            <argument name="requestBuilder" xsi:type="object">Worldline\PaymentCore\Gateway\Request\CaptureDataBuilder</argument>
             <argument name="transferFactory" xsi:type="object">Worldline\PaymentCore\Gateway\Http\TransferFactory</argument>
-            <argument name="client" xsi:type="object">Worldline\CreditCard\Gateway\Http\Client\TransactionSubmitForSettlement</argument>
+            <argument name="client" xsi:type="object">Worldline\PaymentCore\Gateway\Http\Client\TransactionCapture</argument>
             <argument name="handler" xsi:type="object">Worldline\CreditCard\Gateway\Response\TransactionIdHandler</argument>
-            <argument name="validator" xsi:type="object">Worldline\CreditCard\Gateway\Validator\GeneralResponseValidator</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Worldline\CreditCard\Gateway\Request\CaptureBuilder\Virtual" type="Magento\Payment\Gateway\Request\BuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="capture" xsi:type="string">Worldline\CreditCard\Gateway\Request\CaptureDataBuilder</item>
-            </argument>
+            <argument name="validator" xsi:type="object">Worldline\PaymentCore\Gateway\Validator\GeneralResponseValidator</argument>
         </arguments>
     </virtualType>
     <!-- END Capture command  -->
     <!-- Void Command -->
     <virtualType name="Worldline\CreditCard\Gateway\Command\VoidCommand\Virtual" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
-            <argument name="client" xsi:type="object">Worldline\CreditCard\Gateway\Http\Client\TransactionVoid</argument>
-            <argument name="requestBuilder" xsi:type="object">Worldline\CreditCard\Gateway\Request\VoidBuilder\Virtual</argument>
-            <argument name="handler" xsi:type="object">Worldline\CreditCard\Gateway\Response\VoidHandler</argument>
-            <argument name="validator" xsi:type="object">Worldline\CreditCard\Gateway\Validator\GeneralResponseValidator</argument>
+            <argument name="client" xsi:type="object">Worldline\PaymentCore\Gateway\Http\Client\TransactionVoid</argument>
+            <argument name="requestBuilder" xsi:type="object">Worldline\PaymentCore\Gateway\Request\VoidAndCancelDataBuilder</argument>
+            <argument name="handler" xsi:type="object">Worldline\PaymentCore\Gateway\Response\VoidHandler</argument>
+            <argument name="validator" xsi:type="object">Worldline\PaymentCore\Gateway\Validator\GeneralResponseValidator</argument>
             <argument name="transferFactory" xsi:type="object">Worldline\PaymentCore\Gateway\Http\TransferFactory</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Worldline\CreditCard\Gateway\Request\VoidBuilder\Virtual" type="Magento\Payment\Gateway\Request\BuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="void" xsi:type="string">Worldline\CreditCard\Gateway\Request\VoidDataBuilder</item>
-            </argument>
         </arguments>
     </virtualType>
     <!-- END Void Command -->
     <!-- Cancel Command -->
-    <virtualType name="Worldline\CreditCard\Gateway\CancelCommand\Virtual" type="Worldline\CreditCard\Gateway\Command\VoidCommand\Virtual">
+    <virtualType name="Worldline\CreditCard\Gateway\CancelCommand\Virtual" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
-            <argument name="handler" xsi:type="object">Worldline\CreditCard\Gateway\Response\CancelDetailsHandler</argument>
-            <argument name="validator" xsi:type="object">Worldline\CreditCard\Gateway\Validator\GeneralResponseValidator</argument>
+            <argument name="client" xsi:type="object">Worldline\PaymentCore\Gateway\Http\Client\TransactionCancel</argument>
+            <argument name="requestBuilder" xsi:type="object">Worldline\PaymentCore\Gateway\Request\VoidAndCancelDataBuilder</argument>
+            <argument name="handler" xsi:type="object">Worldline\PaymentCore\Gateway\Response\CancelDetailsHandler</argument>
+            <argument name="validator" xsi:type="object">Worldline\PaymentCore\Gateway\Validator\GeneralResponseValidator</argument>
+            <argument name="transferFactory" xsi:type="object">Worldline\PaymentCore\Gateway\Http\TransferFactory</argument>
         </arguments>
     </virtualType>
     <!-- END Cancel Command -->
@@ -180,14 +177,13 @@
             <argument name="transferFactory" xsi:type="object">Worldline\PaymentCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">Worldline\CreditCard\Gateway\Http\Client\TransactionSale</argument>
             <argument name="handler" xsi:type="object">Worldline\CreditCard\Gateway\Response\TransactionIdHandler</argument>
-            <argument name="validator" xsi:type="object">Worldline\CreditCard\Gateway\Validator\GeneralResponseValidator</argument>
+            <argument name="validator" xsi:type="object">Worldline\PaymentCore\Gateway\Validator\GeneralResponseValidator</argument>
         </arguments>
     </virtualType>
     <virtualType name="Worldline\CreditCard\Gateway\Request\VaultCaptureBuilder\Virtual" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="vault_capture" xsi:type="string">Worldline\PaymentCore\Gateway\Request\VaultCaptureDataBuilder</item>
-                <item name="settlement" xsi:type="string">Worldline\CreditCard\Gateway\Request\SettlementDataBuilder</item>
                 <item name="store" xsi:type="string">Worldline\PaymentCore\Gateway\Request\StoreConfigBuilder</item>
                 <item name="merchant_account" xsi:type="string">Worldline\PaymentCore\Gateway\Request\MerchantAccountDataBuilder</item>
             </argument>
@@ -201,14 +197,13 @@
             <argument name="transferFactory" xsi:type="object">Worldline\PaymentCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">Worldline\CreditCard\Gateway\Http\Client\TransactionSale</argument>
             <argument name="handler" xsi:type="object">Worldline\CreditCard\Gateway\Response\HandlerChain\VaultResponse\Virtual</argument>
-            <argument name="validator" xsi:type="object">Worldline\CreditCard\Gateway\Validator\GeneralResponseValidator</argument>
+            <argument name="validator" xsi:type="object">Worldline\PaymentCore\Gateway\Validator\GeneralResponseValidator</argument>
         </arguments>
     </virtualType>
     <virtualType name="Worldline\CreditCard\Gateway\Request\VaultAuthorizeBuilder\Virtual" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="payment" xsi:type="string">Worldline\CreditCard\Gateway\Request\PaymentDataBuilder</item>
-                <item name="3dsecure" xsi:type="string">Worldline\CreditCard\Gateway\Request\VaultThreeDSecureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -224,18 +219,11 @@
     <!-- Refund Command -->
     <virtualType name="Worldline\CreditCard\Gateway\Command\RefundCommand\Virtual" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
-            <argument name="client" xsi:type="object">Worldline\CreditCard\Gateway\Http\Client\TransactionRefund</argument>
-            <argument name="requestBuilder" xsi:type="object">Worldline\CreditCard\Gateway\Request\RefundBuilder\Virtual</argument>
-            <argument name="validator" xsi:type="object">Worldline\CreditCard\Gateway\Validator\GeneralResponseValidator</argument>
-            <argument name="handler" xsi:type="object">Worldline\CreditCard\Gateway\Response\RefundHandler</argument>
+            <argument name="client" xsi:type="object">Worldline\PaymentCore\Gateway\Http\Client\TransactionRefund</argument>
+            <argument name="requestBuilder" xsi:type="object">Worldline\PaymentCore\Gateway\Request\RefundDataBuilder</argument>
+            <argument name="validator" xsi:type="object">Worldline\PaymentCore\Gateway\Validator\GeneralResponseValidator</argument>
+            <argument name="handler" xsi:type="object">Worldline\PaymentCore\Gateway\Response\RefundHandler</argument>
             <argument name="transferFactory" xsi:type="object">Worldline\PaymentCore\Gateway\Http\TransferFactory</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="Worldline\CreditCard\Gateway\Request\RefundBuilder\Virtual" type="Magento\Payment\Gateway\Request\BuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="refund" xsi:type="string">Worldline\CreditCard\Gateway\Request\RefundDataBuilder</item>
-            </argument>
         </arguments>
     </virtualType>
     <!-- END Refund Command -->
@@ -246,15 +234,13 @@
             <argument name="transferFactory" xsi:type="object">Worldline\PaymentCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">Worldline\CreditCard\Gateway\Http\Client\TransactionSale</argument>
             <argument name="handler" xsi:type="object">Worldline\CreditCard\Gateway\Response\HandlerChain\Authorization\Virtual</argument>
-            <argument name="validator" xsi:type="object">Worldline\CreditCard\Gateway\Validator\GeneralResponseValidator</argument>
+            <argument name="validator" xsi:type="object">Worldline\PaymentCore\Gateway\Validator\GeneralResponseValidator</argument>
         </arguments>
     </virtualType>
     <virtualType name="Worldline\CreditCard\Gateway\Request\AuthorizeBuilder\Virtual" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="payment" xsi:type="string">Worldline\CreditCard\Gateway\Request\PaymentDataBuilder</item>
-                <item name="vault" xsi:type="string">Worldline\CreditCard\Gateway\Request\VaultDataBuilder</item>
-                <item name="3dsecure" xsi:type="string">Worldline\CreditCard\Gateway\Request\ThreeDSecureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -278,7 +264,6 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="authorize" xsi:type="string">Worldline\CreditCard\Gateway\Request\VaultAuthorizeBuilder\Virtual</item>
-                <item name="settlement" xsi:type="string">Worldline\CreditCard\Gateway\Request\SettlementDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -291,20 +276,20 @@
             <argument name="config" xsi:type="object">Worldline\CreditCard\Gateway\Config\Config\Virtual</argument>
             <argument name="valueHandlerPool" xsi:type="object">Worldline\CreditCard\Gateway\Config\ValueHandlerPool\Vault\Virtual</argument>
             <argument name="vaultProvider" xsi:type="object">Worldline\CreditCard\Model\Method\Adapter\Virtual</argument>
-            <argument name="code" xsi:type="const">\Worldline\CreditCard\UI\ConfigProvider::CC_VAULT_CODE</argument>
+            <argument name="code" xsi:type="const">\Worldline\CreditCard\Ui\ConfigProvider::CC_VAULT_CODE</argument>
         </arguments>
     </virtualType>
     <!-- Default CC Vault Config Handler -->
     <virtualType name="Worldline\CreditCard\Gateway\Config\Config\Virtual" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
-            <argument name="methodCode" xsi:type="const">\Worldline\CreditCard\UI\ConfigProvider::CC_VAULT_CODE</argument>
+            <argument name="methodCode" xsi:type="const">\Worldline\CreditCard\Ui\ConfigProvider::CC_VAULT_CODE</argument>
         </arguments>
     </virtualType>
     <!-- END Default CC Vault Config Handler -->
     <!-- Custom CC Vault Config Handler -->
     <virtualType name="Worldline\CreditCard\Gateway\Config\CustomConfig\Virtual" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
-            <argument name="methodCode" xsi:type="const">\Worldline\CreditCard\UI\ConfigProvider::CODE</argument>
+            <argument name="methodCode" xsi:type="const">\Worldline\CreditCard\Ui\ConfigProvider::CODE</argument>
         </arguments>
     </virtualType>
     <!-- END Custom CC Vault Config Handler -->

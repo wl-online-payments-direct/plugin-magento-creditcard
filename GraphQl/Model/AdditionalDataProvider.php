@@ -6,7 +6,7 @@ namespace Worldline\CreditCard\GraphQl\Model;
 
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\QuoteGraphQl\Model\Cart\Payment\AdditionalDataProviderInterface;
-use Worldline\CreditCard\UI\ConfigProvider;
+use Worldline\CreditCard\Ui\ConfigProvider;
 
 class AdditionalDataProvider implements AdditionalDataProviderInterface
 {

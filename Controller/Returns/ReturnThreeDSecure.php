@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\Controller\Returns;
 
-use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Worldline\CreditCard\Model\ReturnRequestProcessor;
 use Worldline\PaymentCore\Model\OrderState;
 
-class ReturnThreeDSecure extends Action
+class ReturnThreeDSecure extends Action implements HttpGetActionInterface
 {
     private const SUCCESS_URL = 'checkout/onepage/success';
     private const WAITING_URL = 'worldline/returns/waiting';
@@ -32,10 +32,6 @@ class ReturnThreeDSecure extends Action
         $this->returnRequestProcessor = $returnRequestProcessor;
     }
 
-    /**
-     * @return ResultInterface
-     * @throws Exception
-     */
     public function execute(): ResultInterface
     {
         try {

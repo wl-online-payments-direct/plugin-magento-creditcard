@@ -11,7 +11,7 @@ class CreditCardTypeOptions implements OptionSourceInterface
     public const AE_CONFIG_VALUE = 'americanexpress';
     public const CB_CONFIG_VALUE = 'cartebancaire';
     public const DC_CONFIG_VALUE = 'dinersclub';
-    public const JSB_CONFIG_VALUE = 'jcb';
+    public const JCB_CONFIG_VALUE = 'jcb';
     public const M_CONFIG_VALUE = 'maestro';
     public const MC_CONFIG_VALUE = 'mastercard';
     public const V_CONFIG_VALUE = 'visa';
@@ -21,7 +21,7 @@ class CreditCardTypeOptions implements OptionSourceInterface
         self::AE_CONFIG_VALUE => 2,
         self::MC_CONFIG_VALUE => 3,
         self::M_CONFIG_VALUE => 117,
-        self::JSB_CONFIG_VALUE => 125,
+        self::JCB_CONFIG_VALUE => 125,
         self::CB_CONFIG_VALUE => 130,
         self::DC_CONFIG_VALUE => 132
     ];
@@ -45,7 +45,7 @@ class CreditCardTypeOptions implements OptionSourceInterface
                 'label' => __('Diners Club')
             ],
             [
-                'value' => self::JSB_CONFIG_VALUE,
+                'value' => self::JCB_CONFIG_VALUE,
                 'label' => __('JCB')
             ],
             [

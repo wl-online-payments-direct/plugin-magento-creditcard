@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\GraphQl\Model;
 
-use Worldline\CreditCard\Model\Ui\PaymentIconsProvider;
+use Worldline\CreditCard\Ui\PaymentIconsProvider;
 use Worldline\PaymentCore\GraphQl\Model\PaymentIcons\IconsRetrieverInterface;
 
 class IconsRetriever implements IconsRetrieverInterface

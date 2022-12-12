@@ -8,25 +8,27 @@ use Magento\Framework\Exception\LocalizedException;
 use OnlinePayments\Sdk\Domain\PaymentResponse;
 use Psr\Log\LoggerInterface;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
-use Worldline\CreditCard\Service\Getter\Request as GetterRequest;
+use Worldline\PaymentCore\Api\Service\Payment\GetPaymentServiceInterface;
 use Worldline\PaymentCore\Gateway\Http\Client\AbstractTransaction;
 
 class TransactionSale extends AbstractTransaction
 {
     /**
-     * @var GetterRequest
+     * @var GetPaymentServiceInterface
      */
-    private $getterRequest;
+    private $getPaymentService;
 
     public function __construct(
         LoggerInterface $logger,
-        GetterRequest $getterRequest
+        GetPaymentServiceInterface $getPaymentService
     ) {
         parent::__construct($logger);
-        $this->getterRequest = $getterRequest;
+        $this->getPaymentService = $getPaymentService;
     }
 
     /**
+     * Transaction sale
+     *
      * @param array $data
      * @return PaymentResponse
      * @throws LocalizedException
@@ -38,26 +40,6 @@ class TransactionSale extends AbstractTransaction
             throw new LocalizedException(__('Payment id is missing'));
         }
 
-        $response = $this->getterRequest->create($paymentId, $data[PaymentDataBuilder::STORE_ID]);
-        $this->writeLogIfNeeded($data, $response);
-
-        return $response;
-    }
-
-    private function writeLogIfNeeded(array $data, PaymentResponse $response): void
-    {
-        $transactionAmountOfMoney = $response->getPaymentOutput()
-            ->getAmountOfMoney()
-            ->getAmount();
-        $orderAmountOfMoney = $data[PaymentDataBuilder::AMOUNT] ?? 0;
-
-        if ($transactionAmountOfMoney !== $orderAmountOfMoney) {
-            $this->logger->warning(__('Wrong amount'), [
-                'credit_card_payment_id' => $response->getId(),
-                'transaction_amount_of_money' => $transactionAmountOfMoney,
-                'order_amount_of_money' => $orderAmountOfMoney,
-            ]);
-            throw new LocalizedException(__('Wrong amount'));
-        }
+        return $this->getPaymentService->execute($paymentId, $data[PaymentDataBuilder::STORE_ID]);
     }
 }

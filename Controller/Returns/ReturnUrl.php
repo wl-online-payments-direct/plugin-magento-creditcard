@@ -6,6 +6,7 @@ namespace Worldline\CreditCard\Controller\Returns;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -13,7 +14,7 @@ use Magento\Framework\UrlInterface;
 use Worldline\CreditCard\Model\ReturnRequestProcessor;
 use Worldline\PaymentCore\Model\OrderState;
 
-class ReturnUrl extends Action
+class ReturnUrl extends Action implements HttpGetActionInterface
 {
     private const SUCCESS_URL = 'checkout/onepage/success';
     private const WAITING_URL = 'worldline/returns/waiting';

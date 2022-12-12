@@ -8,7 +8,7 @@ use Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\GraphQl\Model\Query\ContextInterface;
 use Magento\Vault\Model\PaymentTokenManagement;
-use Worldline\CreditCard\UI\ConfigProvider;
+use Worldline\CreditCard\Ui\ConfigProvider;
 
 class PaymentTokens
 {

@@ -33,8 +33,13 @@ class RequestResult implements ResolverInterface
      * @throws \Exception
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
-    {
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        array $value = null,
+        array $args = null
+    ): array {
         $hostedTokenizationId = $args['paymentId'] ?? null;
         if (!$hostedTokenizationId) {
             return [];

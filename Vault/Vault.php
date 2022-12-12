@@ -5,7 +5,6 @@ namespace Worldline\CreditCard\Vault;
 
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Command;
 use Magento\Payment\Gateway\Config\ValueHandlerPoolInterface;
 use Magento\Payment\Gateway\ConfigFactoryInterface;
@@ -14,7 +13,7 @@ use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
-use Worldline\CreditCard\UI\ConfigProvider;
+use Worldline\CreditCard\Ui\ConfigProvider;
 use Worldline\PaymentCore\Model\VaultValidation;
 
 /**
@@ -39,8 +38,7 @@ class Vault extends \Magento\Vault\Model\Method\Vault
         PaymentTokenManagementInterface $tokenManagement,
         OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
         VaultValidation $vaultValidation,
-        string $code,
-        Json $jsonSerializer = null
+        string $code
     ) {
         parent::__construct(
             $config,
@@ -52,8 +50,7 @@ class Vault extends \Magento\Vault\Model\Method\Vault
             $commandManagerPool,
             $tokenManagement,
             $paymentExtensionFactory,
-            $code,
-            $jsonSerializer
+            $code
         );
         $this->vaultValidation = $vaultValidation;
     }

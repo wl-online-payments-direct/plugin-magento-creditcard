@@ -15,9 +15,9 @@ use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use OnlinePayments\Sdk\Domain\MerchantAction;
 use Worldline\CreditCard\Api\CreatePaymentManagementInterface;
+use Worldline\CreditCard\Api\Service\Payment\CreatePaymentServiceInterface;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
-use Worldline\CreditCard\Service\Creator\Request;
-use Worldline\CreditCard\Service\Creator\RequestBuilder;
+use Worldline\CreditCard\Service\Payment\CreatePaymentRequestBuilder;
 use Worldline\PaymentCore\Model\DataAssigner\DataAssignerInterface;
 
 /**
@@ -31,12 +31,7 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
     private $cartRepository;
 
     /**
-     * @var Request
-     */
-    private $createRequest;
-
-    /**
-     * @var RequestBuilder
+     * @var CreatePaymentRequestBuilder
      */
     private $createRequestBuilder;
 
@@ -60,22 +55,27 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
      */
     private $paymentInformationManagement;
 
+    /**
+     * @var CreatePaymentServiceInterface
+     */
+    private $createPaymentService;
+
     public function __construct(
         CartRepositoryInterface $cartRepository,
-        Request $createRequest,
-        RequestBuilder $createRequestBuilder,
+        CreatePaymentRequestBuilder $createRequestBuilder,
         QuoteIdMaskFactory $quoteIdMaskFactory,
         RequestInterface $request,
         PaymentInformationManagementInterface $paymentInformationManagement,
+        CreatePaymentServiceInterface $createPaymentService,
         array $dataAssignerPool = []
     ) {
         $this->cartRepository = $cartRepository;
-        $this->createRequest = $createRequest;
         $this->createRequestBuilder = $createRequestBuilder;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->request = $request;
         $this->dataAssignerPool = $dataAssignerPool;
         $this->paymentInformationManagement = $paymentInformationManagement;
+        $this->createPaymentService = $createPaymentService;
     }
 
     /**
@@ -145,7 +145,7 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
         $this->setToken($quote, $paymentMethod);
 
         $request = $this->createRequestBuilder->build($quote);
-        $response = $this->createRequest->create($request, (int)$quote->getStoreId());
+        $response = $this->createPaymentService->execute($request, (int)$quote->getStoreId());
 
         $payment->setAdditionalInformation(PaymentDataBuilder::PAYMENT_ID, $response->getPayment()->getId());
 
