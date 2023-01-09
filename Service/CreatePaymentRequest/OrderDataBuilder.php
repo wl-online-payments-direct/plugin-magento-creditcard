@@ -7,10 +7,10 @@ namespace Worldline\CreditCard\Service\CreatePaymentRequest;
 use Magento\Quote\Api\Data\CartInterface;
 use OnlinePayments\Sdk\Domain\Order;
 use OnlinePayments\Sdk\Domain\OrderFactory;
-use Worldline\CreditCard\Service\CreatePaymentRequest\Order\AmountDataBuilder;
-use Worldline\CreditCard\Service\CreatePaymentRequest\Order\CustomerDataBuilder;
-use Worldline\CreditCard\Service\CreatePaymentRequest\Order\ReferenceDataBuilder;
-use Worldline\CreditCard\Service\CreatePaymentRequest\Order\ShippingAddressDataBuilder;
+use Worldline\PaymentCore\Service\CreateRequest\Order\AmountDataBuilder;
+use Worldline\PaymentCore\Service\CreateRequest\Order\CustomerDataBuilder;
+use Worldline\PaymentCore\Service\CreateRequest\Order\ReferenceDataBuilder;
+use Worldline\PaymentCore\Service\CreateRequest\Order\ShippingAddressDataBuilder;
 
 class OrderDataBuilder
 {

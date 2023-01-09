@@ -8,14 +8,12 @@ use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use OnlinePayments\Sdk\Domain\CardPaymentMethodSpecificInput;
 use OnlinePayments\Sdk\Domain\CardPaymentMethodSpecificInputFactory;
-use OnlinePayments\Sdk\Domain\RedirectionDataFactory;
-use OnlinePayments\Sdk\Domain\ThreeDSecure;
-use OnlinePayments\Sdk\Domain\ThreeDSecureFactory;
 use Worldline\CreditCard\Gateway\Config\Config;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\CreditCard\Ui\ConfigProvider;
+use Worldline\PaymentCore\Service\CreateRequest\ThreeDSecureDataBuilder;
 
-class CardPaymentMethodSpecificInputDataBuilder
+class CardPaymentMethodSIDBuilder
 {
     /**
      * @var Config
@@ -28,37 +26,25 @@ class CardPaymentMethodSpecificInputDataBuilder
     private $cardPaymentMethodSpecificInputFactory;
 
     /**
-     * @var ThreeDSecureFactory
-     */
-    private $threeDSecureFactory;
-
-    /**
-     * @var RedirectionDataFactory
-     */
-    private $redirectionDataFactory;
-
-    /**
      * @var ManagerInterface
      */
     private $eventManager;
 
     /**
-     * @var string|null
+     * @var ThreeDSecureDataBuilder
      */
-    private $returnUrl;
+    private $threeDSecureDataBuilder;
 
     public function __construct(
         Config $config,
         CardPaymentMethodSpecificInputFactory $cardPaymentMethodSpecificInputFactory,
-        ThreeDSecureFactory $threeDSecureFactory,
-        RedirectionDataFactory $redirectionDataFactory,
-        ManagerInterface $eventManager
+        ManagerInterface $eventManager,
+        ThreeDSecureDataBuilder $threeDSecureDataBuilder
     ) {
         $this->config = $config;
         $this->cardPaymentMethodSpecificInputFactory = $cardPaymentMethodSpecificInputFactory;
-        $this->threeDSecureFactory = $threeDSecureFactory;
-        $this->redirectionDataFactory = $redirectionDataFactory;
         $this->eventManager = $eventManager;
+        $this->threeDSecureDataBuilder = $threeDSecureDataBuilder;
     }
 
     public function build(CartInterface $quote): CardPaymentMethodSpecificInput
@@ -66,8 +52,8 @@ class CardPaymentMethodSpecificInputDataBuilder
         $storeId = (int)$quote->getStoreId();
         $cardPaymentMethodSpecificInput = $this->cardPaymentMethodSpecificInputFactory->create();
 
-        $cardPaymentMethodSpecificInput->setReturnUrl($this->getReturnUrl($storeId));
-        $cardPaymentMethodSpecificInput->setThreeDSecure($this->getThreeDSecure($storeId));
+        $cardPaymentMethodSpecificInput->setReturnUrl($this->config->getReturnUrl($storeId));
+        $cardPaymentMethodSpecificInput->setThreeDSecure($this->threeDSecureDataBuilder->build($quote));
         $cardPaymentMethodSpecificInput->setAuthorizationMode($this->config->getAuthorizationMode($storeId));
         $cardPaymentMethodSpecificInput->setToken(
             $quote->getPayment()->getAdditionalInformation(PaymentDataBuilder::TOKEN_ID)
@@ -77,29 +63,5 @@ class CardPaymentMethodSpecificInputDataBuilder
         $this->eventManager->dispatch(ConfigProvider::CODE . '_card_payment_method_specific_input_builder', $args);
 
         return $cardPaymentMethodSpecificInput;
-    }
-
-    private function getReturnUrl(int $storeId): string
-    {
-        if (null === $this->returnUrl) {
-            $this->returnUrl = $this->config->getReturnUrl($storeId);
-        }
-
-        return $this->returnUrl;
-    }
-
-    private function getThreeDSecure(int $storeId): ThreeDSecure
-    {
-        $threeDSecure = $this->threeDSecureFactory->create();
-        $isSkipAuthentication = $this->config->hasSkipAuthentication($storeId);
-        $threeDSecure->setSkipAuthentication($isSkipAuthentication);
-        if (!$isSkipAuthentication && $this->config->isTriggerAnAuthentication($storeId)) {
-            $threeDSecure->setChallengeIndicator('challenge-required');
-        }
-        $redirectionData = $this->redirectionDataFactory->create();
-        $redirectionData->setReturnUrl($this->getReturnUrl($storeId));
-        $threeDSecure->setRedirectionData($redirectionData);
-
-        return $threeDSecure;
     }
 }

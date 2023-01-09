@@ -7,7 +7,7 @@ namespace Worldline\CreditCard\Service\Payment;
 use Magento\Quote\Api\Data\CartInterface;
 use OnlinePayments\Sdk\Domain\CreatePaymentRequest;
 use OnlinePayments\Sdk\Domain\CreatePaymentRequestFactory;
-use Worldline\CreditCard\Service\CreatePaymentRequest\CardPaymentMethodSpecificInputDataBuilder;
+use Worldline\CreditCard\Service\CreatePaymentRequest\CardPaymentMethodSIDBuilder;
 use Worldline\CreditCard\Service\CreatePaymentRequest\OrderDataBuilder;
 
 class CreatePaymentRequestBuilder
@@ -23,27 +23,25 @@ class CreatePaymentRequestBuilder
     private $orderDataBuilder;
 
     /**
-     * @var CardPaymentMethodSpecificInputDataBuilder
+     * @var CardPaymentMethodSIDBuilder
      */
-    private $cardPaymentMethodSpecificInputDataBuilder;
+    private $cardPaymentMethodSIDBuilder;
 
     public function __construct(
         CreatePaymentRequestFactory $createPaymentRequestFactory,
         OrderDataBuilder $orderDataBuilder,
-        CardPaymentMethodSpecificInputDataBuilder $cardPaymentMethodSpecificInputDataBuilder
+        CardPaymentMethodSIDBuilder $cardPaymentMethodSIDBuilder
     ) {
         $this->createPaymentRequestFactory = $createPaymentRequestFactory;
         $this->orderDataBuilder = $orderDataBuilder;
-        $this->cardPaymentMethodSpecificInputDataBuilder = $cardPaymentMethodSpecificInputDataBuilder;
+        $this->cardPaymentMethodSIDBuilder = $cardPaymentMethodSIDBuilder;
     }
 
     public function build(CartInterface $quote): CreatePaymentRequest
     {
         $createPaymentRequest = $this->createPaymentRequestFactory->create();
         $createPaymentRequest->setOrder($this->orderDataBuilder->build($quote));
-        $createPaymentRequest->setCardPaymentMethodSpecificInput(
-            $this->cardPaymentMethodSpecificInputDataBuilder->build($quote)
-        );
+        $createPaymentRequest->setCardPaymentMethodSpecificInput($this->cardPaymentMethodSIDBuilder->build($quote));
 
         return $createPaymentRequest;
     }

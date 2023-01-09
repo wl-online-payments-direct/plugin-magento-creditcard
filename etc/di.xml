@@ -24,15 +24,6 @@
         </arguments>
     </type>
 
-    <type name="Worldline\PaymentCore\Model\PaymentStatusCode\StatusCodePool">
-        <arguments>
-            <argument name="statusCodeRetrievers" xsi:type="array">
-                <item name="worldline_cc" xsi:type="object">Worldline\CreditCard\Model\StatusCodeRetriever</item>
-                <item name="worldline_cc_vault" xsi:type="object">Worldline\CreditCard\Model\StatusCodeRetriever</item>
-            </argument>
-        </arguments>
-    </type>
-
     <type name="Worldline\PaymentCore\Model\ResourceModel\PendingOrderProvider">
         <arguments>
             <argument name="allowedPaymentMethods" xsi:type="array">
@@ -46,6 +37,15 @@
         <arguments>
             <argument name="extendedConfigData" xsi:type="array">
                 <item name="worldline_cc_vault_active" xsi:type="string">payment/worldline_cc_vault/active</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Worldline\PaymentCore\Service\CreateRequest\ThreeDSecureDataBuilder">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="worldline_cc" xsi:type="object">Worldline\CreditCard\Gateway\Config\Config</item>
+                <item name="worldline_cc_vault" xsi:type="object">Worldline\CreditCard\Gateway\Config\Config</item>
             </argument>
         </arguments>
     </type>
