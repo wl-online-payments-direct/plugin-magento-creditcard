@@ -41,6 +41,10 @@ define([
         },
 
         initializeTokenizer: function () {
+            if (typeof window.checkoutConfig.payment[this.getCode()].url === 'undefined') {
+                return;
+            }
+
             let hostedTokenizationPageUrl = window.checkoutConfig.payment[this.getCode()].url;
             this.tokenizer = new Tokenizer(hostedTokenizationPageUrl, 'div-hosted-tokenization', {hideCardholderName: false});
 

@@ -48,9 +48,9 @@
                         <field id="active">1</field>
                     </depends>
                 </field>
-                <field id="template_id" type="text" translate="label" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="template_id" type="text" translate="label" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>HTML Template ID</label>
-                    <validate>required-entry validate-html-template-id</validate>
+                    <validate>validate-html-template-id</validate>
                     <config_path>payment/worldline_cc/template_id</config_path>
                     <depends>
                         <field id="active">1</field>
