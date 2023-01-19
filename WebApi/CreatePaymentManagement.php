@@ -18,6 +18,7 @@ use Worldline\CreditCard\Api\CreatePaymentManagementInterface;
 use Worldline\CreditCard\Api\Service\Payment\CreatePaymentServiceInterface;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\CreditCard\Service\Payment\CreatePaymentRequestBuilder;
+use Worldline\PaymentCore\Api\QuoteRestorationInterface;
 use Worldline\PaymentCore\Model\DataAssigner\DataAssignerInterface;
 
 /**
@@ -60,6 +61,11 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
      */
     private $createPaymentService;
 
+    /**
+     * @var QuoteRestorationInterface
+     */
+    private $quoteRestoration;
+
     public function __construct(
         CartRepositoryInterface $cartRepository,
         CreatePaymentRequestBuilder $createRequestBuilder,
@@ -67,6 +73,7 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
         RequestInterface $request,
         PaymentInformationManagementInterface $paymentInformationManagement,
         CreatePaymentServiceInterface $createPaymentService,
+        QuoteRestorationInterface $quoteRestoration,
         array $dataAssignerPool = []
     ) {
         $this->cartRepository = $cartRepository;
@@ -76,6 +83,7 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
         $this->dataAssignerPool = $dataAssignerPool;
         $this->paymentInformationManagement = $paymentInformationManagement;
         $this->createPaymentService = $createPaymentService;
+        $this->quoteRestoration = $quoteRestoration;
     }
 
     /**
@@ -157,6 +165,8 @@ class CreatePaymentManagement implements CreatePaymentManagementInterface
             $redirectUrl = $action->getRedirectData()->getRedirectURL();
         }
 
+        $quote->setIsActive(false);
+        $this->quoteRestoration->preserveQuoteId((int)$quote->getId());
         $this->cartRepository->save($quote);
 
         return $redirectUrl;

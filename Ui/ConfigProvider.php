@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\Ui;
 
-use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Worldline\CreditCard\Gateway\Config\Config;
@@ -64,8 +64,8 @@ class ConfigProvider implements ConfigProviderInterface
 
     public function getConfig(): array
     {
+        $storeId = (int) $this->storeManager->getStore()->getId();
         try {
-            $storeId = (int) $this->storeManager->getStore()->getId();
             $createHostedTokenizationResponse =
                 $this->createHostedTokenizationResponseProcessor->buildAndProcess($storeId);
 
@@ -79,9 +79,15 @@ class ConfigProvider implements ConfigProviderInterface
                     ]
                 ]
             ];
-        } catch (Exception $e) {
+        } catch (LocalizedException $e) {
             $this->logger->critical($e);
-            return [];
+            return [
+                'payment' => [
+                    self::CODE => [
+                        'isActive' => $this->config->isActive($storeId),
+                    ]
+                ]
+            ];
         }
     }
 }
