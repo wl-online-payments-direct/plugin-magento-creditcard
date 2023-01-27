@@ -9,10 +9,13 @@ This is a module for the credit card (iFrame) Worldline payment solution.
 
 To install this solution, you may use
 [adobe commerce marketplace](https://marketplace.magento.com/worldline-module-magento-payment.html)
-or install it from the github.
+or install it from the GitHub.
 
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
+
+#### 1.6.1
+- Rise core version
 
 #### 1.6.0
 - Improve cancel and void actions logic.
