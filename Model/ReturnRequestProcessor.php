@@ -57,6 +57,7 @@ class ReturnRequestProcessor
         /** @var OrderState $orderState */
         $orderState = $this->orderStateFactory->create();
         $orderState->setIncrementId($reservedOrderId);
+        $orderState->setPaymentMethod((string)$quote->getPayment()->getMethod());
 
         $order = $this->orderFactory->create()->loadByIncrementId($reservedOrderId);
         if (!$order->getId()) {

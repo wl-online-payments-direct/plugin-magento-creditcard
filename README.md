@@ -14,8 +14,16 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.7.0
+- Add price restrictions for currencies having specific decimals rules (like JPY).
+- Move 3-D Secure settings to the general tab under the "Payment Methods" menu.
+- Change names and tooltips of the 3-D Secure settings.
+- Add integration tests.
+- Add infrastructure for integration tests.
+- General code improvements and bug fixes.
+
 #### 1.6.1
-- Rise core version
+- Rise core version.
 
 #### 1.6.0
 - Improve cancel and void actions logic.
@@ -30,30 +38,30 @@ This solution is also included into [main plugin for adobe commerce](https://git
 - General code improvements and bug fixes.
 
 #### 1.4.0
-- Option added to enforce Strong Customer Authentication for every 3DS request
-- Improvements and support for 2.3.x magento versions
-- General code improvements and bug fixes
+- Option added to enforce Strong Customer Authentication for every 3DS request.
+- Improvements and support for 2.3.x magento versions.
+- General code improvements and bug fixes.
 
 #### 1.3.1
-- Improve work for multi website instances
+- Improve work for multi website instances.
 
 #### 1.3.0
-- Improve the "waiting" page
-- Add the "pending" page
+- Improve the "waiting" page.
+- Add the "pending" page.
 
 #### 1.2.0
-- Bug fixes and general code improvements
+- Bug fixes and general code improvements.
 
 #### 1.1.1
-- Hide the checkbox "save card" for iFrame checkout (Credit Card payment method) for guests and when the vault is disabled
-- PWA improvements and support
-- Bug fixes and general code improvements
+- Hide the checkbox "save card" for iFrame checkout (Credit Card payment method) for guests and when the vault is disabled.
+- PWA improvements and support.
+- Bug fixes and general code improvements.
 
 #### 1.1.0
-- Waiting page has been added after payment is done to correctly process webhooks and create the order
-- Asyncronic order creation through get calls when webhooks suffer delay
-- Refund flow is improved for multi-website instances
-- General improvements and bug fixes
+- Waiting page has been added after payment is done to correctly process webhooks and create the order.
+- Asyncronic order creation through get calls when webhooks suffer delay.
+- Refund flow is improved for multi-website instances.
+- General improvements and bug fixes.
 
 #### 1.0.0
-- Initial MVP version 
+- Initial MVP version.
