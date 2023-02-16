@@ -1,14 +1,9 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Worldline\CreditCard\Gateway\Config;
 
-use Magento\Framework\App\Area;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\State;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Config\Config as PaymentGatewayConfig;
 use Magento\Store\Model\ScopeInterface;
 use Worldline\CreditCard\Ui\ConfigProvider;
@@ -23,21 +18,7 @@ class Config extends PaymentGatewayConfig
     public const AUTHORIZE_CAPTURE = 'authorize_capture';
     public const CC_TYPES = 'cc_types';
     public const TEMPLATE_ID = 'template_id';
-    public const SKIP_3D = 'skip_3d';
-    public const AUTHENTICATION_TRIGGER = 'authentication_trigger';
-    public const THREE_D_EXEMPTION = '3d_exemption';
-    public const PWA_ROUTE = 'pwa_route';
     public const KEY_ACTIVE = 'active';
-
-    /**
-     * @var UrlInterface
-     */
-    private $urlBuilder;
-
-    /**
-     * @var State
-     */
-    private $appState;
 
     /**
      * @var ScopeConfigInterface
@@ -51,14 +32,10 @@ class Config extends PaymentGatewayConfig
 
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        UrlInterface $urlBuilder,
-        State $appState,
         $pathPattern = PaymentGatewayConfig::DEFAULT_PATH_PATTERN,
         ?array $extendedConfigData = []
     ) {
         parent::__construct($scopeConfig, ConfigProvider::CODE, $pathPattern);
-        $this->urlBuilder = $urlBuilder;
-        $this->appState = $appState;
         $this->scopeConfig = $scopeConfig;
         $this->extendedConfigData = $extendedConfigData;
     }
@@ -81,36 +58,6 @@ class Config extends PaymentGatewayConfig
             default:
                 return self::AUTHORIZATION_MODE_FINAL;
         }
-    }
-
-    public function hasSkipAuthentication(?int $storeId = null): bool
-    {
-        return (bool) $this->getValue(self::SKIP_3D, $storeId);
-    }
-
-    public function isTriggerAnAuthentication(?int $storeId = null): bool
-    {
-        return (bool) $this->getValue(self::AUTHENTICATION_TRIGGER, $storeId);
-    }
-
-    public function isThreeDExemptionEnabled(?int $storeId = null): bool
-    {
-        return (bool) $this->getValue(self::THREE_D_EXEMPTION, $storeId);
-    }
-
-    /**
-     * @param int|null $storeId
-     * @return string
-     * @throws LocalizedException
-     */
-    public function getReturnUrl(?int $storeId = null): string
-    {
-        $pwaRoute = (string) $this->getValue(self::PWA_ROUTE, $storeId);
-        if ($pwaRoute && $this->appState->getAreaCode() === Area::AREA_GRAPHQL) {
-            return $pwaRoute;
-        }
-
-        return $this->urlBuilder->getUrl('wl_creditcard/returns/returnThreeDSecure');
     }
 
     public function isActive(?int $storeId = null): bool

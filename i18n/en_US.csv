@@ -39,7 +39,6 @@ Sort,Sort
 "Custom Return URL","Custom Return URL"
 "Should be set only if you use PWA Studio or any other 3rd party frontend.","Should be set only if you use PWA Studio or any other 3rd party frontend."
 "Saved Payment Sort order","Saved Payment Sort order"
-"Skip 3DSecure Authentication","Skip 3DSecure Authentication"
 "This option should not be turned off if the merchant is based in a EU country","This option should not be turned off if the merchant is based in a EU country"
 "Trigger an Authentication for Every Payment","Trigger an Authentication for Every Payment"
 "Enabling this option will make sure the customer performs a “Strong Customer Authentication” and hence enforces a “challenge” 3DS flow.","Enabling this option will make sure the customer performs a “Strong Customer Authentication” and hence enforces a “challenge” 3DS flow."

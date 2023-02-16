@@ -9,12 +9,19 @@
 
     <type name="Worldline\CreditCard\WebApi\CreatePaymentManagement">
         <arguments>
+            <argument name="baseCreatePaymentManagement" xsi:type="object">Worldline\CreditCard\WebApi\Checkout\BaseCreatePaymentManagement</argument>
+        </arguments>
+    </type>
+    <virtualType name="Worldline\CreditCard\WebApi\Checkout\BaseCreatePaymentManagement" type="Worldline\PaymentCore\WebApi\Checkout\BaseCreatePaymentManagement">
+        <arguments>
             <argument name="dataAssignerPool" xsi:type="array">
                 <item name="device-data" xsi:type="object">Worldline\PaymentCore\Model\DataAssigner\DeviceDataAssigner</item>
                 <item name="payment-data" xsi:type="object">Worldline\CreditCard\WebApi\CreatePaymentManagement\PaymentMethodDataAssigner</item>
+                <item name="token-data" xsi:type="object">Worldline\PaymentCore\Model\DataAssigner\TokenDataAssigner</item>
+                <item name="create-payment-data" xsi:type="object">Worldline\CreditCard\WebApi\CreatePaymentManagement\CreatePaymentDataAssigner</item>
             </argument>
         </arguments>
-    </type>
+    </virtualType>
 
     <type name="Worldline\PaymentCore\Block\Customer\CardRenderer">
         <arguments>
@@ -43,9 +50,9 @@
 
     <type name="Worldline\PaymentCore\Service\CreateRequest\ThreeDSecureDataBuilder">
         <arguments>
-            <argument name="configProviders" xsi:type="array">
-                <item name="worldline_cc" xsi:type="object">Worldline\CreditCard\Gateway\Config\Config</item>
-                <item name="worldline_cc_vault" xsi:type="object">Worldline\CreditCard\Gateway\Config\Config</item>
+            <argument name="returnUrls" xsi:type="array">
+                <item name="worldline_cc" xsi:type="string">wl_creditcard/returns/returnThreeDSecure</item>
+                <item name="worldline_cc_vault" xsi:type="string">wl_creditcard/returns/returnThreeDSecure</item>
             </argument>
         </arguments>
     </type>

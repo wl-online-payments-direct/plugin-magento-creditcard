@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Worldline\CreditCard\Service\CreatePaymentRequest;
@@ -11,10 +10,13 @@ use OnlinePayments\Sdk\Domain\CardPaymentMethodSpecificInputFactory;
 use Worldline\CreditCard\Gateway\Config\Config;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\CreditCard\Ui\ConfigProvider;
+use Worldline\PaymentCore\Model\Config\GeneralSettingsConfig;
 use Worldline\PaymentCore\Service\CreateRequest\ThreeDSecureDataBuilder;
 
 class CardPaymentMethodSIDBuilder
 {
+    public const RETURN_URL = 'wl_creditcard/returns/returnThreeDSecure';
+
     /**
      * @var Config
      */
@@ -35,16 +37,23 @@ class CardPaymentMethodSIDBuilder
      */
     private $threeDSecureDataBuilder;
 
+    /**
+     * @var GeneralSettingsConfig
+     */
+    private $generalSettings;
+
     public function __construct(
         Config $config,
         CardPaymentMethodSpecificInputFactory $cardPaymentMethodSpecificInputFactory,
         ManagerInterface $eventManager,
-        ThreeDSecureDataBuilder $threeDSecureDataBuilder
+        ThreeDSecureDataBuilder $threeDSecureDataBuilder,
+        GeneralSettingsConfig $generalSettings
     ) {
         $this->config = $config;
         $this->cardPaymentMethodSpecificInputFactory = $cardPaymentMethodSpecificInputFactory;
         $this->eventManager = $eventManager;
         $this->threeDSecureDataBuilder = $threeDSecureDataBuilder;
+        $this->generalSettings = $generalSettings;
     }
 
     public function build(CartInterface $quote): CardPaymentMethodSpecificInput
@@ -52,7 +61,7 @@ class CardPaymentMethodSIDBuilder
         $storeId = (int)$quote->getStoreId();
         $cardPaymentMethodSpecificInput = $this->cardPaymentMethodSpecificInputFactory->create();
 
-        $cardPaymentMethodSpecificInput->setReturnUrl($this->config->getReturnUrl($storeId));
+        $cardPaymentMethodSpecificInput->setReturnUrl($this->generalSettings->getReturnUrl(self::RETURN_URL, $storeId));
         $cardPaymentMethodSpecificInput->setThreeDSecure($this->threeDSecureDataBuilder->build($quote));
         $cardPaymentMethodSpecificInput->setAuthorizationMode($this->config->getAuthorizationMode($storeId));
         $cardPaymentMethodSpecificInput->setToken(
