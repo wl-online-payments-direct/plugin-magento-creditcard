@@ -6,6 +6,7 @@ namespace Worldline\CreditCard\Model;
 use Magento\Checkout\Model\Session;
 use Magento\Sales\Model\OrderFactory;
 use Worldline\PaymentCore\Api\Data\OrderStateInterfaceFactory;
+use Worldline\PaymentCore\Api\Data\PaymentInterface;
 use Worldline\PaymentCore\Model\OrderState;
 use Worldline\PaymentCore\Model\ResourceModel\Quote as QuoteResource;
 
@@ -53,11 +54,13 @@ class ReturnRequestProcessor
     public function processRequest(string $paymentId): OrderState
     {
         $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($paymentId);
+        $payment = $quote->getPayment();
         $reservedOrderId = (string)$quote->getReservedOrderId();
         /** @var OrderState $orderState */
         $orderState = $this->orderStateFactory->create();
         $orderState->setIncrementId($reservedOrderId);
-        $orderState->setPaymentMethod((string)$quote->getPayment()->getMethod());
+        $orderState->setPaymentMethod((string)$payment->getMethod());
+        $orderState->setPaymentProductId((int)$payment->getAdditionalInformation(PaymentInterface::PAYMENT_PRODUCT_ID));
 
         $order = $this->orderFactory->create()->loadByIncrementId($reservedOrderId);
         if (!$order->getId()) {

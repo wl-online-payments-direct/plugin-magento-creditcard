@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.7.1
+- Support the 13.0.0 version of PWA.
+
 #### 1.7.0
 - Add price restrictions for currencies having specific decimals rules (like JPY).
 - Move 3-D Secure settings to the general tab under the "Payment Methods" menu.
