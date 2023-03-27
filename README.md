@@ -14,6 +14,14 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.8.0
+- Add surcharge functionality (for the Australian market).
+- Add Sepa Direct Debit payment method.
+- Add the ability to save the Sepa Direct Debit mandate and use it through the Magento vault.
+- Extract GraphQl into a dedicated extension.
+- Add Integration tests.
+- General code improvements and bug fixes.
+
 #### 1.7.1
 - Support the 13.0.0 version of PWA.
 

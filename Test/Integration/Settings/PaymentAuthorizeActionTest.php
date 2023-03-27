@@ -10,9 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Worldline\CreditCard\Gateway\Config\Config;
 use Worldline\CreditCard\Service\CreatePaymentRequest\CardPaymentMethodSIDBuilder;
 use Worldline\CreditCard\Ui\ConfigProvider;
+use Worldline\PaymentCore\Api\QuoteResourceInterface;
 use Worldline\PaymentCore\Api\Test\Infrastructure\ServiceStubSwitcherInterface;
 use Worldline\PaymentCore\Api\Test\Infrastructure\WebhookStubSenderInterface;
-use Worldline\PaymentCore\Model\ResourceModel\Quote as QuoteExtendedRepository;
 use Worldline\PaymentCore\Test\Infrastructure\StubData\Webhook\Authorization;
 
 /**
@@ -41,7 +41,7 @@ class PaymentAuthorizeActionTest extends TestCase
     private $orderFactory;
 
     /**
-     * @var QuoteExtendedRepository
+     * @var QuoteResourceInterface
      */
     private $quoteExtendedRepository;
 
@@ -51,7 +51,7 @@ class PaymentAuthorizeActionTest extends TestCase
         $this->cardPaymentMethodSIDBuilder = $objectManager->get(CardPaymentMethodSIDBuilder::class);
         $this->webhookStubSender = $objectManager->get(WebhookStubSenderInterface::class);
         $this->orderFactory = $objectManager->get(OrderInterfaceFactory::class);
-        $this->quoteExtendedRepository = $objectManager->get(QuoteExtendedRepository::class);
+        $this->quoteExtendedRepository = $objectManager->get(QuoteResourceInterface::class);
         $objectManager->get(ServiceStubSwitcherInterface::class)->setEnabled(true);
     }
 

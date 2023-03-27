@@ -10,6 +10,7 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Worldline\CreditCard\Model\ReturnRequestProcessor;
+use Worldline\PaymentCore\Api\Payment\PaymentIdFormatterInterface;
 use Worldline\PaymentCore\Model\OrderState;
 
 class ReturnThreeDSecure extends Action implements HttpGetActionInterface
@@ -23,18 +24,26 @@ class ReturnThreeDSecure extends Action implements HttpGetActionInterface
      */
     private $returnRequestProcessor;
 
+    /**
+     * @var PaymentIdFormatterInterface
+     */
+    private $paymentIdFormatter;
+
     public function __construct(
         Context $context,
-        ReturnRequestProcessor $returnRequestProcessor
+        ReturnRequestProcessor $returnRequestProcessor,
+        PaymentIdFormatterInterface $paymentIdFormatter
     ) {
         parent::__construct($context);
         $this->returnRequestProcessor = $returnRequestProcessor;
+        $this->paymentIdFormatter = $paymentIdFormatter;
     }
 
     public function execute(): ResultInterface
     {
         try {
             $paymentId = (string)$this->getRequest()->getParam('paymentId');
+            $paymentId = $this->paymentIdFormatter->validateAndFormat($paymentId);
 
             /** @var OrderState $orderState */
             $orderState = $this->returnRequestProcessor->processRequest($paymentId);

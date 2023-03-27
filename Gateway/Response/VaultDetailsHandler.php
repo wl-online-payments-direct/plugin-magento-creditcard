@@ -11,9 +11,9 @@ use Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory;
 use Magento\Vault\Api\Data\PaymentTokenFactoryInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use OnlinePayments\Sdk\Domain\PaymentResponse;
-use Worldline\PaymentCore\Gateway\SubjectReader;
-use Worldline\PaymentCore\Model\CardDate;
-use Worldline\PaymentCore\Model\Config\WorldlineConfig;
+use Worldline\PaymentCore\Api\CardDateInterface;
+use Worldline\PaymentCore\Api\SubjectReaderInterface;
+use Worldline\PaymentCore\Api\Config\WorldlineConfigInterface;
 
 class VaultDetailsHandler implements HandlerInterface
 {
@@ -28,26 +28,26 @@ class VaultDetailsHandler implements HandlerInterface
     private $paymentExtensionFactory;
 
     /**
-     * @var SubjectReader
+     * @var SubjectReaderInterface
      */
     private $subjectReader;
 
     /**
-     * @var WorldlineConfig
+     * @var WorldlineConfigInterface
      */
     private $worldlineConfig;
 
     /**
-     * @var CardDate
+     * @var CardDateInterface
      */
     private $cardDate;
 
     public function __construct(
         PaymentTokenFactoryInterface $paymentTokenFactory,
         OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
-        SubjectReader $subjectReader,
-        WorldlineConfig $worldlineConfig,
-        CardDate $cardDate
+        SubjectReaderInterface $subjectReader,
+        WorldlineConfigInterface $worldlineConfig,
+        CardDateInterface $cardDate
     ) {
         $this->paymentTokenFactory = $paymentTokenFactory;
         $this->paymentExtensionFactory = $paymentExtensionFactory;

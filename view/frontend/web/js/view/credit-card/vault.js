@@ -1,22 +1,34 @@
 /*browser:true*/
 /*global define*/
 define([
+    'ko',
     'jquery',
+    'Worldline_CreditCard/js/model/tokenizer',
     'Magento_Vault/js/view/payment/method-renderer/vault',
     'Worldline_CreditCard/js/view/credit-card/create-payment',
+    'Worldline_CreditCard/js/view/credit-card/create-surcharge',
     'Worldline_PaymentCore/js/model/device-data',
     'Worldline_PaymentCore/js/model/message-manager',
     'Magento_Ui/js/modal/alert',
+    'Magento_Checkout/js/model/cart/totals-processor/default',
+    'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/model/full-screen-loader',
+    'Magento_Catalog/js/price-utils',
     'mage/url'
 ], function (
+    ko,
     $,
+    tokenizerAction,
     VaultComponent,
     placeOrderAction,
+    surchargeAction,
     deviceData,
     messageManager,
     alert,
+    totalsDefaultProvider,
+    quote,
     fullScreenLoader,
+    priceUtils,
     urlBuilder
 ) {
     'use strict';
@@ -24,9 +36,27 @@ define([
     return VaultComponent.extend({
         defaults: {
             template: 'Worldline_PaymentCore/payment/vault',
+            isSurchargeEnabled: ko.observable(false),
+            actionsVisible: true,
+
             modules: {
                 tokenizer: null
             }
+        },
+
+        /**
+         * @returns {exports.initialize}
+         */
+        initialize: function () {
+            this._super();
+
+            this.isSurchargeEnabled(tokenizerAction.isSurchargeActive());
+
+            tokenizerAction.isSurchargeActive.subscribe(function (isActive) {
+                this.isSurchargeEnabled(isActive);
+            }, this);
+
+            return this;
         },
 
         /**
@@ -99,6 +129,10 @@ define([
             return this.details.type;
         },
 
+        getSurcharge: function (data, event) {
+            this.placeOrder(data, event);
+        },
+
         placeOrder: function (data, event) {
             let self = this;
 
@@ -111,26 +145,85 @@ define([
             ) {
                 this.isPlaceOrderActionAllowed(false);
 
-                this.tokenizer.submitTokenization()
-                    .then((result) => {
-                        if (result.success) {
-                            self.createPayment(result);
-                            return true;
-                        }
 
-                        if (result.error) {
-                            messageManager.processMessage(result.error.message);
-                            self.isPlaceOrderActionAllowed(true);
-                        }
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    });
+                if (this.isTokenizerResult) {
+                    if ((!tokenizerAction.isOscValid() && tokenizerAction.staticSurchargeEnabled)
+                        || tokenizerAction.isSurchargeActive()) {
+                        this.createSurcharge(this.isTokenizerResult);
+                    } else {
+                        this.createPayment(this.isTokenizerResult);
+                    }
+
+                    return true;
+                }
+
+                this.processPlaceOrder();
 
                 return true;
             }
 
             return false;
+        },
+
+        processPlaceOrder: function () {
+            let self = this;
+
+            this.tokenizer.submitTokenization().then((result) => {
+                if (result.success) {
+                    self.isTokenizerResult = result;
+
+                    if (tokenizerAction.isSurchargeActive()) {
+                        self.createSurcharge(result);
+                    } else {
+                        self.createPayment(result);
+                    }
+                }
+
+                if (result.error) {
+                    messageManager.processMessage(result.error.message);
+                    self.isPlaceOrderActionAllowed(true);
+                }
+            }).catch((error) => {
+                console.error(error);
+            });
+        },
+
+        createSurcharge: function (result) {
+            let self = this;
+
+            $.when(
+                surchargeAction(result.hostedTokenizationId)
+            ).done(function (response) {
+                self.succeedSurcharge(response);
+                tokenizerAction.isOscValid(true);
+            }).fail(function () {
+                let msg = $.mage.__('Your request couldn\'t be completed, please try again');
+                alert({
+                    content: msg,
+                    actions: {
+                        always: function () {
+                            $('div-hosted-tokenization').empty();
+                            location.reload();
+                        }
+                    }
+                });
+            })
+
+            return true;
+        },
+
+        succeedSurcharge: function (value) {
+            let self = this;
+            let formattedPrice = priceUtils.formatPrice(value, quote.getPriceFormat());
+            let messageContainer = this.messageContainer || globalMessageList;
+            let message = $.mage.__('Surcharge amount: ' + formattedPrice);
+
+            messageContainer.addSuccessMessage({'message': message});
+
+            totalsDefaultProvider.estimateTotals(quote.shippingAddress()).then(function () {
+                tokenizerAction.isSurchargeActive(false);
+                self.isPlaceOrderActionAllowed(true);
+            });
         },
 
         createPayment: function (result) {
@@ -144,6 +237,7 @@ define([
                         window.location.replace(returnUrl);
                     } else {
                         fullScreenLoader.startLoader();
+
                         setTimeout(() => {
                             self.redirectToSuccess(result.hostedTokenizationId);
                         }, 3000)

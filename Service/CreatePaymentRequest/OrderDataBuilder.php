@@ -6,10 +6,10 @@ namespace Worldline\CreditCard\Service\CreatePaymentRequest;
 use Magento\Quote\Api\Data\CartInterface;
 use OnlinePayments\Sdk\Domain\Order;
 use OnlinePayments\Sdk\Domain\OrderFactory;
-use Worldline\PaymentCore\Service\CreateRequest\Order\AmountDataBuilder;
-use Worldline\PaymentCore\Service\CreateRequest\Order\CustomerDataBuilder;
-use Worldline\PaymentCore\Service\CreateRequest\Order\ReferenceDataBuilder;
-use Worldline\PaymentCore\Service\CreateRequest\Order\ShippingAddressDataBuilder;
+use Worldline\PaymentCore\Api\Service\CreateRequest\Order\AmountDataBuilderInterface;
+use Worldline\PaymentCore\Api\Service\CreateRequest\Order\CustomerDataBuilderInterface;
+use Worldline\PaymentCore\Api\Service\CreateRequest\Order\ReferenceDataBuilderInterface;
+use Worldline\PaymentCore\Api\Service\CreateRequest\Order\ShippingAddressDataBuilderInterface;
 
 class OrderDataBuilder
 {
@@ -19,31 +19,31 @@ class OrderDataBuilder
     private $orderFactory;
 
     /**
-     * @var AmountDataBuilder
+     * @var AmountDataBuilderInterface
      */
     private $amountDataBuilder;
 
     /**
-     * @var CustomerDataBuilder
+     * @var CustomerDataBuilderInterface
      */
     private $customerDataBuilder;
 
     /**
-     * @var ReferenceDataBuilder
+     * @var ReferenceDataBuilderInterface
      */
     private $referenceDataBuilder;
 
     /**
-     * @var ShippingAddressDataBuilder
+     * @var ShippingAddressDataBuilderInterface
      */
     private $shippingAddressDataBuilder;
 
     public function __construct(
         OrderFactory $orderFactory,
-        AmountDataBuilder $amountDataBuilder,
-        CustomerDataBuilder $customerDataBuilder,
-        ReferenceDataBuilder $referenceDataBuilder,
-        ShippingAddressDataBuilder $shippingAddressDataBuilder
+        AmountDataBuilderInterface $amountDataBuilder,
+        CustomerDataBuilderInterface $customerDataBuilder,
+        ReferenceDataBuilderInterface $referenceDataBuilder,
+        ShippingAddressDataBuilderInterface $shippingAddressDataBuilder
     ) {
         $this->orderFactory = $orderFactory;
         $this->amountDataBuilder = $amountDataBuilder;

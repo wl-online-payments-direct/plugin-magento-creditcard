@@ -10,8 +10,8 @@ use OnlinePayments\Sdk\Domain\CardPaymentMethodSpecificInputFactory;
 use Worldline\CreditCard\Gateway\Config\Config;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\CreditCard\Ui\ConfigProvider;
-use Worldline\PaymentCore\Model\Config\GeneralSettingsConfig;
-use Worldline\PaymentCore\Service\CreateRequest\ThreeDSecureDataBuilder;
+use Worldline\PaymentCore\Api\Config\GeneralSettingsConfigInterface;
+use Worldline\PaymentCore\Api\Service\CreateRequest\ThreeDSecureDataBuilderInterface;
 
 class CardPaymentMethodSIDBuilder
 {
@@ -33,12 +33,12 @@ class CardPaymentMethodSIDBuilder
     private $eventManager;
 
     /**
-     * @var ThreeDSecureDataBuilder
+     * @var ThreeDSecureDataBuilderInterface
      */
     private $threeDSecureDataBuilder;
 
     /**
-     * @var GeneralSettingsConfig
+     * @var GeneralSettingsConfigInterface
      */
     private $generalSettings;
 
@@ -46,8 +46,8 @@ class CardPaymentMethodSIDBuilder
         Config $config,
         CardPaymentMethodSpecificInputFactory $cardPaymentMethodSpecificInputFactory,
         ManagerInterface $eventManager,
-        ThreeDSecureDataBuilder $threeDSecureDataBuilder,
-        GeneralSettingsConfig $generalSettings
+        ThreeDSecureDataBuilderInterface $threeDSecureDataBuilder,
+        GeneralSettingsConfigInterface $generalSettings
     ) {
         $this->config = $config;
         $this->cardPaymentMethodSpecificInputFactory = $cardPaymentMethodSpecificInputFactory;
