@@ -18,4 +18,20 @@
         </data>
     </route>
     <!-- CREDIT CARD: create payment -->
+
+    <route url="/V1/guest-carts/:cartId/worldline/credit-card-surcharge" method="POST">
+        <service class="Worldline\CreditCard\Api\CalculateSurchargeManagementInterface" method="calculateForGuest"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/carts/mine/worldline/credit-card-surcharge" method="POST">
+        <service class="Worldline\CreditCard\Api\CalculateSurchargeManagementInterface" method="calculate"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
 </routes>

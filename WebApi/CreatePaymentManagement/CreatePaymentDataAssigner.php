@@ -6,9 +6,10 @@ namespace Worldline\CreditCard\WebApi\CreatePaymentManagement;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\PaymentInterface;
 use OnlinePayments\Sdk\Domain\MerchantAction;
-use Worldline\CreditCard\Api\Service\Payment\CreatePaymentServiceInterface;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\CreditCard\Service\Payment\CreatePaymentRequestBuilder;
+use Worldline\PaymentCore\Api\Payment\PaymentIdFormatterInterface;
+use Worldline\PaymentCore\Api\Service\Payment\CreatePaymentServiceInterface;
 use Worldline\PaymentCore\Model\DataAssigner\DataAssignerInterface;
 
 class CreatePaymentDataAssigner implements DataAssignerInterface
@@ -23,12 +24,19 @@ class CreatePaymentDataAssigner implements DataAssignerInterface
      */
     private $createPaymentService;
 
+    /**
+     * @var PaymentIdFormatterInterface
+     */
+    private $paymentIdFormatter;
+
     public function __construct(
         CreatePaymentRequestBuilder $createRequestBuilder,
-        CreatePaymentServiceInterface $createPaymentService
+        CreatePaymentServiceInterface $createPaymentService,
+        PaymentIdFormatterInterface $paymentIdFormatter
     ) {
         $this->createRequestBuilder = $createRequestBuilder;
         $this->createPaymentService = $createPaymentService;
+        $this->paymentIdFormatter = $paymentIdFormatter;
     }
 
     /**
@@ -47,7 +55,8 @@ class CreatePaymentDataAssigner implements DataAssignerInterface
         $request = $this->createRequestBuilder->build($quote);
         $response = $this->createPaymentService->execute($request, (int)$quote->getStoreId());
 
-        $payment->setAdditionalInformation(PaymentDataBuilder::PAYMENT_ID, $response->getPayment()->getId());
+        $wlPaymentId = $this->paymentIdFormatter->validateAndFormat((string) $response->getPayment()->getId());
+        $payment->setAdditionalInformation(PaymentDataBuilder::PAYMENT_ID, $wlPaymentId);
 
         $action = $response->getMerchantAction();
 

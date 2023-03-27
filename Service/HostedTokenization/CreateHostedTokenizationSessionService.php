@@ -6,8 +6,9 @@ namespace Worldline\CreditCard\Service\HostedTokenization;
 use Magento\Framework\Exception\LocalizedException;
 use OnlinePayments\Sdk\Domain\CreateHostedTokenizationRequest;
 use OnlinePayments\Sdk\Domain\CreateHostedTokenizationResponse;
-use Worldline\PaymentCore\Model\ClientProvider;
-use Worldline\PaymentCore\Model\Config\WorldlineConfig;
+use Psr\Log\LoggerInterface;
+use Worldline\PaymentCore\Api\ClientProviderInterface;
+use Worldline\PaymentCore\Api\Config\WorldlineConfigInterface;
 use Worldline\CreditCard\Api\Service\HostedTokenization\CreateHostedTokenizationSessionServiceInterface;
 
 /**
@@ -16,21 +17,28 @@ use Worldline\CreditCard\Api\Service\HostedTokenization\CreateHostedTokenization
 class CreateHostedTokenizationSessionService implements CreateHostedTokenizationSessionServiceInterface
 {
     /**
-     * @var WorldlineConfig
+     * @var WorldlineConfigInterface
      */
     private $worldlineConfig;
 
     /**
-     * @var ClientProvider
+     * @var ClientProviderInterface
      */
     private $clientProvider;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
-        WorldlineConfig $worldlineConfig,
-        ClientProvider $clientProvider
+        WorldlineConfigInterface $worldlineConfig,
+        ClientProviderInterface $clientProvider,
+        LoggerInterface $logger
     ) {
         $this->worldlineConfig = $worldlineConfig;
         $this->clientProvider = $clientProvider;
+        $this->logger = $logger;
     }
 
     /**
@@ -51,6 +59,7 @@ class CreateHostedTokenizationSessionService implements CreateHostedTokenization
                 ->hostedTokenization()
                 ->createHostedTokenization($createHostedTokenizationRequest);
         } catch (\Exception $e) {
+            $this->logger->debug($e->getMessage());
             throw new LocalizedException(
                 __('CreateHostedTokenizationApi request has failed. Please contact the provider.')
             );

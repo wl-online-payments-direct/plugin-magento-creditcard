@@ -1,0 +1,28 @@
+& when (@media-common = true) {
+    .checkout-payment-method .credit-card-types.worldline-payment-types img {
+        -webkit-filter: none;
+        -webkit-transition: none;
+        width: 80px;
+    }
+    div[id*='iframe-worldline_cc_vault'],
+    div.div-hosted-tokenization {
+        iframe {
+            border: 0;
+            width: 100%;
+        }
+    }
+
+    .modal-popup.worldline_cc-action-modal {
+        .modal-inner-wrap {
+            height: 80%;
+
+            .modal-content {
+                height: 100%;
+
+                .worldline_cc-action-modal {
+                    height: 100%;
+                }
+            }
+        }
+    }
+}

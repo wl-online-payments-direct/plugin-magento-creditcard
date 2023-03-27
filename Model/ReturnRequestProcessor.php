@@ -3,16 +3,13 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\Model;
 
-use Magento\Checkout\Model\Session;
 use Magento\Sales\Model\OrderFactory;
 use Worldline\PaymentCore\Api\Data\OrderStateInterfaceFactory;
 use Worldline\PaymentCore\Api\Data\PaymentInterface;
+use Worldline\PaymentCore\Api\QuoteResourceInterface;
+use Worldline\PaymentCore\Api\SessionDataManagerInterface;
 use Worldline\PaymentCore\Model\OrderState;
-use Worldline\PaymentCore\Model\ResourceModel\Quote as QuoteResource;
 
-/**
- * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
- */
 class ReturnRequestProcessor
 {
     public const SUCCESS_STATE = 'success';
@@ -20,14 +17,14 @@ class ReturnRequestProcessor
     public const FAIL_STATE = 'fail';
 
     /**
-     * @var QuoteResource
+     * @var QuoteResourceInterface
      */
     private $quoteResource;
 
     /**
-     * @var Session
+     * @var SessionDataManagerInterface
      */
-    private $checkoutSession;
+    private $sessionDataManager;
 
     /**
      * @var OrderFactory
@@ -40,13 +37,13 @@ class ReturnRequestProcessor
     private $orderStateFactory;
 
     public function __construct(
-        QuoteResource $quoteResource,
-        Session $checkoutSession,
+        QuoteResourceInterface $quoteResource,
+        SessionDataManagerInterface $sessionDataManager,
         OrderFactory $orderFactory,
         OrderStateInterfaceFactory $orderStateFactory
     ) {
         $this->quoteResource = $quoteResource;
-        $this->checkoutSession = $checkoutSession;
+        $this->sessionDataManager = $sessionDataManager;
         $this->orderFactory = $orderFactory;
         $this->orderStateFactory = $orderStateFactory;
     }
@@ -65,17 +62,13 @@ class ReturnRequestProcessor
         $order = $this->orderFactory->create()->loadByIncrementId($reservedOrderId);
         if (!$order->getId()) {
             $orderState->setState(self::WAITING_STATE);
-            $this->checkoutSession->clearStorage();
-            $this->checkoutSession->setLastRealOrderId($reservedOrderId);
+            $this->sessionDataManager->reserveOrder($reservedOrderId);
 
             return $orderState;
         }
 
         $orderState->setState(self::SUCCESS_STATE);
-        $this->checkoutSession->setLastOrderId((int) $order->getId());
-        $this->checkoutSession->setLastRealOrderId($reservedOrderId);
-        $this->checkoutSession->setLastQuoteId($quote->getId());
-        $this->checkoutSession->setLastSuccessQuoteId($quote->getId());
+        $this->sessionDataManager->setOrderData($order);
 
         return $orderState;
     }

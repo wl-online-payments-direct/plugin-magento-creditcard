@@ -1,11 +1,16 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference type="Worldline\CreditCard\WebApi\CreatePaymentManagement" for="Worldline\CreditCard\Api\CreatePaymentManagementInterface" />
-    <preference type="Worldline\CreditCard\Service\Payment\CreatePaymentService" for="Worldline\CreditCard\Api\Service\Payment\CreatePaymentServiceInterface" />
+    <preference type="Worldline\CreditCard\WebApi\CalculateSurchargeManagement" for="Worldline\CreditCard\Api\CalculateSurchargeManagementInterface" />
     <preference type="Worldline\CreditCard\Service\HostedTokenization\CreateHostedTokenizationSessionService"
                 for="Worldline\CreditCard\Api\Service\HostedTokenization\CreateHostedTokenizationSessionServiceInterface" />
     <preference type="Worldline\CreditCard\Service\HostedTokenization\GetHostedTokenizationSessionService"
                 for="Worldline\CreditCard\Api\Service\HostedTokenization\GetHostedTokenizationSessionServiceInterface" />
+
+    <type name="Magento\Checkout\Api\PaymentInformationManagementInterface">
+        <plugin name="Worldline_CreditCard::remove_index_from_vault"
+                type="Worldline\CreditCard\Plugin\Magento\Checkout\Model\PaymentInformationManagement\RemoveIndexFromVault"/>
+    </type>
 
     <type name="Worldline\CreditCard\WebApi\CreatePaymentManagement">
         <arguments>
@@ -53,6 +58,14 @@
             <argument name="returnUrls" xsi:type="array">
                 <item name="worldline_cc" xsi:type="string">wl_creditcard/returns/returnThreeDSecure</item>
                 <item name="worldline_cc_vault" xsi:type="string">wl_creditcard/returns/returnThreeDSecure</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Worldline\PaymentCore\Model\Checkout\ConfigProvider">
+        <arguments>
+            <argument name="allowedPaymentMethods" xsi:type="array">
+                <item name="worldline_cc" xsi:type="const">Worldline\CreditCard\Ui\ConfigProvider::CODE</item>
             </argument>
         </arguments>
     </type>

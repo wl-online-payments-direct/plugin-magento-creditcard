@@ -6,17 +6,17 @@ namespace Worldline\CreditCard\Gateway\Response;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Model\Order\Payment;
 use OnlinePayments\Sdk\DataObject;
-use Worldline\PaymentCore\Gateway\SubjectReader;
+use Worldline\PaymentCore\Api\SubjectReaderInterface;
 
 class TransactionIdHandler implements HandlerInterface
 {
     /**
-     * @var SubjectReader
+     * @var SubjectReaderInterface
      */
     private $subjectReader;
 
     public function __construct(
-        SubjectReader $subjectReader
+        SubjectReaderInterface $subjectReader
     ) {
         $this->subjectReader = $subjectReader;
     }

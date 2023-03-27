@@ -7,8 +7,8 @@ use Magento\Framework\App\Area;
 use Magento\Framework\View\Asset\Source as AssetSource;
 use Worldline\CreditCard\Gateway\Config\Config;
 use Worldline\CreditCard\Model\Config\Source\CreditCardTypeOptions;
-use Worldline\PaymentCore\Ui\PaymentIconsProvider as GeneralIconsProvider;
-use Worldline\PaymentCore\Ui\PaymentProductsProvider;
+use Worldline\PaymentCore\Api\Ui\PaymentIconsProviderInterface;
+use Worldline\PaymentCore\Api\Ui\PaymentProductsProviderInterface;
 
 class PaymentIconsProvider
 {
@@ -28,12 +28,12 @@ class PaymentIconsProvider
     private $options;
 
     /**
-     * @var GeneralIconsProvider
+     * @var PaymentIconsProviderInterface
      */
     private $generalIconsProvider;
 
     /**
-     * @var PaymentProductsProvider
+     * @var PaymentProductsProviderInterface
      */
     private $paymentProductsProvider;
 
@@ -41,8 +41,8 @@ class PaymentIconsProvider
         AssetSource $assetSource,
         Config $config,
         CreditCardTypeOptions $options,
-        GeneralIconsProvider $generalIconsProvider,
-        PaymentProductsProvider $paymentProductsProvider
+        PaymentIconsProviderInterface $generalIconsProvider,
+        PaymentProductsProviderInterface $paymentProductsProvider
     ) {
         $this->assetSource = $assetSource;
         $this->config = $config;
