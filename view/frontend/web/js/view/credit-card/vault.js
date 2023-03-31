@@ -76,26 +76,31 @@ define([
             return data;
         },
 
-        /**
-         * @returns
-         */
         initializeTokenizer: function () {
-            let hostedTokenizationPageUrl = window.checkoutConfig.payment.worldline_cc.url;
-            this.tokenizer = new Tokenizer(
-                hostedTokenizationPageUrl,
+            tokenizerAction.initializeTokenizer(
+                this,
                 'iframe-' + this.getId(),
                 {hideCardholderName: false, hideTokenFields:false},
                 this.getToken()
             );
-            this.tokenizer.initialize()
-                .then(() => {
-                    // Do work after initialization, if any
-                })
-                .catch(reason => {
-                    // Handle iFrame load error
-                })
 
-            return true;
+
+            // let hostedTokenizationPageUrl = window.checkoutConfig.payment.worldline_cc.url;
+            // this.tokenizer = new Tokenizer(
+            //     hostedTokenizationPageUrl,
+            //     'iframe-' + this.getId(),
+            //     {hideCardholderName: false, hideTokenFields:false},
+            //     this.getToken()
+            // );
+            // this.tokenizer.initialize()
+            //     .then(() => {
+            //         // Do work after initialization, if any
+            //     })
+            //     .catch(reason => {
+            //         // Handle iFrame load error
+            //     })
+            //
+            // return true;
         },
 
         /**
@@ -242,19 +247,6 @@ define([
                             self.redirectToSuccess(result.hostedTokenizationId);
                         }, 3000)
                     }
-                }
-            ).fail(
-                function () {
-                    let msg = $.mage.__('Your payment couldn\'t be completed, please try again');
-                    alert({
-                        content: msg,
-                        actions: {
-                            always: function () {
-                                $('div-hosted-tokenization').empty();
-                                location.reload();
-                            }
-                        }
-                    });
                 }
             ).always(
                 function () {

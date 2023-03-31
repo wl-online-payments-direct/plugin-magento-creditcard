@@ -99,7 +99,13 @@ define([
         },
 
         initializeTokenizer: function () {
-            tokenizerAction.initializeTokenizer(this);
+            tokenizerAction.initializeTokenizer(
+                this,
+                'div-hosted-tokenization',
+                {
+                    hideCardholderName: false
+                }
+            );
         },
 
         /**
@@ -281,19 +287,6 @@ define([
                             self.redirectToSuccess(result.hostedTokenizationId);
                         }, 3000)
                     }
-                }
-            ).fail(
-                function () {
-                    let msg = $.mage.__('Your payment couldn\'t be completed, please try again');
-                    alert({
-                        content: msg,
-                        actions: {
-                            always: function () {
-                                $('div-hosted-tokenization').empty();
-                                location.reload();
-                            }
-                        }
-                    });
                 }
             ).always(
                 function () {
