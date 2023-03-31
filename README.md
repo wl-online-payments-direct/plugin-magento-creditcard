@@ -14,6 +14,11 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.8.1
+- Improve performance on the checkout page.
+- Add backend address validation before payments.
+- General code improvements and bug fixes.
+
 #### 1.8.0
 - Add surcharge functionality (for the Australian market).
 - Add Sepa Direct Debit payment method.

@@ -1,7 +1,6 @@
 define([
-    'jquery',
-    'ko'
-], function ($, ko) {
+    'jquery', 'ko', 'mage/url'
+], function ($, ko, urlBuilder) {
         "use strict";
 
         return {
@@ -21,29 +20,41 @@ define([
                 return this.paymentMethod;
             },
 
-            initializeTokenizer: function (component) {
+            initializeTokenizer: function (component, elementId, options, token) {
                 if (!this.getCode()) {
                     return;
                 }
 
-                if (typeof window.checkoutConfig.payment[this.getCode()].url === 'undefined') {
+                let url = this.getUrl();
+
+                if (!url) {
                     return;
                 }
 
-                let hostedTokenizationPageUrl = window.checkoutConfig.payment[this.getCode()].url;
-
-                component.tokenizer = new Tokenizer(hostedTokenizationPageUrl, 'div-hosted-tokenization', {
-                    hideCardholderName: false
-                });
-
-                return component.tokenizer.initialize()
+                component.tokenizer = new Tokenizer(url, elementId, options, token);
+                component.tokenizer.initialize()
                     .then(() => {
                         // after initialization methods
                     })
                     .catch(reason => {
                         // error handler
-                    })
+                    });
             },
+
+            getUrl: function () {
+                if (typeof window.checkoutConfig.payment[this.getCode()].url === 'undefined') {
+                    $.ajax({
+                        method: 'GET',
+                        url: urlBuilder.build('wl_creditcard/tokenizer/url'),
+                        contentType: "application/json",
+                        async: false
+                    }).done($.proxy(function (data) {
+                        window.checkoutConfig.payment[this.getCode()].url = data.url;
+                    }, this));
+                }
+
+                return window.checkoutConfig.payment[this.getCode()].url;
+            }
         };
     }
 );
