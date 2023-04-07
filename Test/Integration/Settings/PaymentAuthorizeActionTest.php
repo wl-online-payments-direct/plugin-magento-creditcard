@@ -13,7 +13,7 @@ use Worldline\CreditCard\Ui\ConfigProvider;
 use Worldline\PaymentCore\Api\QuoteResourceInterface;
 use Worldline\PaymentCore\Api\Test\Infrastructure\ServiceStubSwitcherInterface;
 use Worldline\PaymentCore\Api\Test\Infrastructure\WebhookStubSenderInterface;
-use Worldline\PaymentCore\Test\Infrastructure\StubData\Webhook\Authorization;
+use Worldline\PaymentCore\Infrastructure\StubData\Webhook\Authorization;
 
 /**
  * Test cases for configuration "Payment Action" and "Authorization Mode"
