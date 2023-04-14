@@ -10,40 +10,33 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Worldline\CreditCard\Model\ReturnRequestProcessor;
-use Worldline\PaymentCore\Api\Payment\PaymentIdFormatterInterface;
-use Worldline\PaymentCore\Model\OrderState;
+use Worldline\PaymentCore\Model\Order\RejectOrderException;
+use Worldline\PaymentCore\Model\OrderState\OrderState;
 
 class ReturnThreeDSecure extends Action implements HttpGetActionInterface
 {
     private const SUCCESS_URL = 'checkout/onepage/success';
     private const WAITING_URL = 'worldline/returns/waiting';
     private const FAIL_URL = 'worldline/returns/failed';
+    private const REJECT_URL = 'worldline/returns/reject';
 
     /**
      * @var ReturnRequestProcessor
      */
     private $returnRequestProcessor;
 
-    /**
-     * @var PaymentIdFormatterInterface
-     */
-    private $paymentIdFormatter;
-
     public function __construct(
         Context $context,
-        ReturnRequestProcessor $returnRequestProcessor,
-        PaymentIdFormatterInterface $paymentIdFormatter
+        ReturnRequestProcessor $returnRequestProcessor
     ) {
         parent::__construct($context);
         $this->returnRequestProcessor = $returnRequestProcessor;
-        $this->paymentIdFormatter = $paymentIdFormatter;
     }
 
     public function execute(): ResultInterface
     {
         try {
             $paymentId = (string)$this->getRequest()->getParam('paymentId');
-            $paymentId = $this->paymentIdFormatter->validateAndFormat($paymentId);
 
             /** @var OrderState $orderState */
             $orderState = $this->returnRequestProcessor->processRequest($paymentId);
@@ -53,6 +46,8 @@ class ReturnThreeDSecure extends Action implements HttpGetActionInterface
             }
 
             return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setPath(self::SUCCESS_URL);
+        } catch (RejectOrderException $exception) {
+            return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setPath(self::REJECT_URL);
         } catch (LocalizedException $exception) {
             return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)->setPath(self::FAIL_URL);
         }

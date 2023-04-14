@@ -58,9 +58,9 @@ class PaymentAuthorizeActionTest extends TestCase
     /**
      * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/quote.php
-     * @magentoConfigFixture current_store currency/options/allow EUR
-     * @magentoConfigFixture current_store currency/options/base EUR
-     * @magentoConfigFixture current_store currency/options/default EUR
+     * @magentoConfigFixture default/currency/options/allow EUR
+     * @magentoConfigFixture default/currency/options/base EUR
+     * @magentoConfigFixture default/currency/options/default EUR
      * @magentoConfigFixture current_store payment/worldline_cc/active 1
      * @magentoConfigFixture current_store payment/worldline_cc/payment_action authorize
      * @magentoConfigFixture current_store payment/worldline_cc/authorization_mode final
@@ -142,6 +142,7 @@ class PaymentAuthorizeActionTest extends TestCase
             $this->quote->setCustomerEmail('example@worldline.com');
             $this->quote->getPayment()->setAdditionalInformation('payment_id', '3254564310_0');
             $this->quote->getPayment()->setAdditionalInformation('token_id', 'test');
+            $this->quote->collectTotals();
             $this->quote->save();
         }
 

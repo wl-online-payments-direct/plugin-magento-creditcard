@@ -16,9 +16,10 @@ use Worldline\PaymentCore\Api\Test\Infrastructure\WebhookStubSenderInterface;
 use Worldline\PaymentCore\Infrastructure\StubData\Webhook\Authorization;
 
 /**
- * Test cases for configuration "Payment Action" and "Authorization Mode"
+ * Test cases for configuration "Payment Action" -> Autorize & Capture
+ * and "Default Order Status" -> "Fraud"
  */
-class PaymentAuthorizeAndCaptureActionTest extends TestCase
+class PaymentAuthorizeAndCaptureActionDefaultStatusTest extends TestCase
 {
     /**
      * @var CardPaymentMethodSIDBuilder
@@ -57,6 +58,7 @@ class PaymentAuthorizeAndCaptureActionTest extends TestCase
      * @magentoConfigFixture default/currency/options/base EUR
      * @magentoConfigFixture default/currency/options/default EUR
      * @magentoConfigFixture current_store payment/worldline_cc/active 1
+     * @magentoConfigFixture current_store payment/worldline_cc/order_status fraud
      * @magentoConfigFixture current_store payment/worldline_cc/payment_action authorize_capture
      * @magentoConfigFixture current_store worldline_connection/webhook/key test-X-Gcs-Keyid
      * @magentoConfigFixture current_store worldline_connection/webhook/secret_key test-X-Gcs-Signature
@@ -82,7 +84,7 @@ class PaymentAuthorizeAndCaptureActionTest extends TestCase
         // validate created order
         $order = $this->orderFactory->create()->loadByIncrementId($quote->getReservedOrderId());
         $this->assertTrue((bool) $order->getId());
-        $this->assertEquals('processing', $order->getStatus());
+        $this->assertEquals('fraud', $order->getStatus());
         $this->assertEquals('worldline_cc', $order->getPayment()->getMethod());
         $this->assertCount(1, $order->getInvoiceCollection()->getItems());
     }

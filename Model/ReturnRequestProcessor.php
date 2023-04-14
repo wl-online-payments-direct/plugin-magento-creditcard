@@ -4,11 +4,12 @@ declare(strict_types=1);
 namespace Worldline\CreditCard\Model;
 
 use Magento\Sales\Model\OrderFactory;
-use Worldline\PaymentCore\Api\Data\OrderStateInterfaceFactory;
 use Worldline\PaymentCore\Api\Data\PaymentInterface;
+use Worldline\PaymentCore\Api\OrderStateManagerInterface;
+use Worldline\PaymentCore\Api\Payment\PaymentIdFormatterInterface;
 use Worldline\PaymentCore\Api\QuoteResourceInterface;
 use Worldline\PaymentCore\Api\SessionDataManagerInterface;
-use Worldline\PaymentCore\Model\OrderState;
+use Worldline\PaymentCore\Model\OrderState\OrderState;
 
 class ReturnRequestProcessor
 {
@@ -32,44 +33,59 @@ class ReturnRequestProcessor
     private $orderFactory;
 
     /**
-     * @var OrderStateInterfaceFactory
+     * @var OrderStateManagerInterface
      */
-    private $orderStateFactory;
+    private $orderStateManager;
+
+    /**
+     * @var PaymentIdFormatterInterface
+     */
+    private $paymentIdFormatter;
+
+    /**
+     * @var SuccessTransactionChecker
+     */
+    private $successTransactionChecker;
 
     public function __construct(
         QuoteResourceInterface $quoteResource,
         SessionDataManagerInterface $sessionDataManager,
         OrderFactory $orderFactory,
-        OrderStateInterfaceFactory $orderStateFactory
+        OrderStateManagerInterface $orderStateManager,
+        PaymentIdFormatterInterface $paymentIdFormatter,
+        SuccessTransactionChecker $successTransactionChecker
     ) {
         $this->quoteResource = $quoteResource;
         $this->sessionDataManager = $sessionDataManager;
         $this->orderFactory = $orderFactory;
-        $this->orderStateFactory = $orderStateFactory;
+        $this->orderStateManager = $orderStateManager;
+        $this->paymentIdFormatter = $paymentIdFormatter;
+        $this->successTransactionChecker = $successTransactionChecker;
     }
 
-    public function processRequest(string $paymentId): OrderState
+    public function processRequest(string $paymentId = null, string $hostedTokenizationId = null): OrderState
     {
-        $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($paymentId);
-        $payment = $quote->getPayment();
-        $reservedOrderId = (string)$quote->getReservedOrderId();
-        /** @var OrderState $orderState */
-        $orderState = $this->orderStateFactory->create();
-        $orderState->setIncrementId($reservedOrderId);
-        $orderState->setPaymentMethod((string)$payment->getMethod());
-        $orderState->setPaymentProductId((int)$payment->getAdditionalInformation(PaymentInterface::PAYMENT_PRODUCT_ID));
-
-        $order = $this->orderFactory->create()->loadByIncrementId($reservedOrderId);
-        if (!$order->getId()) {
-            $orderState->setState(self::WAITING_STATE);
-            $this->sessionDataManager->reserveOrder($reservedOrderId);
-
-            return $orderState;
+        if ($paymentId) {
+            $paymentId = $this->paymentIdFormatter->validateAndFormat($paymentId);
+            $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($paymentId);
+            $this->successTransactionChecker->check($quote, $paymentId);
+        } else {
+            $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($hostedTokenizationId);
         }
 
-        $orderState->setState(self::SUCCESS_STATE);
+        $payment = $quote->getPayment();
+        $paymentCode = (string)$payment->getMethod();
+        $paymentProductId = (int)$payment->getAdditionalInformation(PaymentInterface::PAYMENT_PRODUCT_ID);
+
+        $incrementId = (string)$quote->getReservedOrderId();
+        $order = $this->orderFactory->create()->loadByIncrementId($incrementId);
+        if (!$order->getId()) {
+            $this->sessionDataManager->reserveOrder($incrementId);
+            return $this->orderStateManager->create($incrementId, $paymentCode, self::WAITING_STATE, $paymentProductId);
+        }
+
         $this->sessionDataManager->setOrderData($order);
 
-        return $orderState;
+        return $this->orderStateManager->create($incrementId, $paymentCode, self::SUCCESS_STATE, $paymentProductId);
     }
 }
