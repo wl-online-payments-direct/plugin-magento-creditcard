@@ -1,32 +1,24 @@
 <?php
 declare(strict_types=1);
 
-namespace Worldline\CreditCard\Test\Integration\Settings;
+namespace Worldline\CreditCard\Test\Integration\Payment;
 
+use Magento\Customer\Model\Session;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterfaceFactory;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use Worldline\CreditCard\Gateway\Config\Config;
-use Worldline\CreditCard\Service\CreatePaymentRequest\CardPaymentMethodSIDBuilder;
 use Worldline\CreditCard\Ui\ConfigProvider;
 use Worldline\PaymentCore\Api\QuoteResourceInterface;
 use Worldline\PaymentCore\Api\Test\Infrastructure\ServiceStubSwitcherInterface;
 use Worldline\PaymentCore\Api\Test\Infrastructure\WebhookStubSenderInterface;
+use Worldline\PaymentCore\Infrastructure\ActiveVault\FakePaymentToken;
 use Worldline\PaymentCore\Infrastructure\StubData\Webhook\Authorization;
 
-/**
- * Test cases for configuration "Payment Action" and "Authorization Mode"
- */
-class PaymentAuthorizeAndCaptureActionTest extends TestCase
+class PlaceOrderWithSavedCardTest extends TestCase
 {
     /**
-     * @var CardPaymentMethodSIDBuilder
-     */
-    private $cardPaymentMethodSIDBuilder;
-
-    /**
-     * @var  WebhookStubSenderInterface
+     * @var WebhookStubSenderInterface
      */
     private $webhookStubSender;
 
@@ -43,7 +35,6 @@ class PaymentAuthorizeAndCaptureActionTest extends TestCase
     public function setUp(): void
     {
         $objectManager = Bootstrap::getObjectManager();
-        $this->cardPaymentMethodSIDBuilder = $objectManager->get(CardPaymentMethodSIDBuilder::class);
         $this->webhookStubSender = $objectManager->get(WebhookStubSenderInterface::class);
         $this->orderFactory = $objectManager->get(OrderInterfaceFactory::class);
         $this->quoteExtendedRepository = $objectManager->get(QuoteResourceInterface::class);
@@ -52,26 +43,31 @@ class PaymentAuthorizeAndCaptureActionTest extends TestCase
 
     /**
      * @magentoAppIsolation enabled
+     * @magentoDataFixture Magento/Customer/_files/customer.php
+     * @magentoDataFixture Magento/Customer/_files/customer_address.php
      * @magentoDataFixture Magento/Sales/_files/quote.php
      * @magentoConfigFixture default/currency/options/allow EUR
      * @magentoConfigFixture default/currency/options/base EUR
      * @magentoConfigFixture default/currency/options/default EUR
-     * @magentoConfigFixture current_store payment/worldline_cc/active 1
-     * @magentoConfigFixture current_store payment/worldline_cc/payment_action authorize_capture
+     * @magentoConfigFixture default/sales_email/general/async_sending 0
+     * @magentoConfigFixture current_store payment/worldline_worldline_cc/active 1
+     * @magentoConfigFixture current_store payment/worldline_cc_vault/active 1
+     * @magentoConfigFixture current_store payment/worldline_cc/payment_action authorize
+     * @magentoConfigFixture current_store payment/worldline_cc/authorization_mode final
      * @magentoConfigFixture current_store worldline_connection/webhook/key test-X-Gcs-Keyid
      * @magentoConfigFixture current_store worldline_connection/webhook/secret_key test-X-Gcs-Signature
      */
-    public function testAuthorizeAndCapture(): void
+    public function testAuthorizeWithFinalAuthorization(): void
     {
-        $quote = $this->getQuote();
-        $cardPaymentMethodSpecificInput = $this->cardPaymentMethodSIDBuilder->build($this->getQuote());
-        $this->assertEquals(
-            Config::AUTHORIZATION_MODE_SALE,
-            $cardPaymentMethodSpecificInput->getAuthorizationMode()
-        );
+        /** @var Session $customerSession */
+        $customerSession = Bootstrap::getObjectManager()->get(Session::class);
+        $customerSession->loginById(1);
 
+        Bootstrap::getObjectManager()->get(FakePaymentToken::class)->createVaultToken(ConfigProvider::CODE);
+
+        $reservedOrderId = $this->getQuote()->getReservedOrderId();
         // send the webhook and place the order
-        $result = $this->webhookStubSender->sendWebhook(Authorization::getData($quote->getReservedOrderId()));
+        $result = $this->webhookStubSender->sendWebhook(Authorization::getData($reservedOrderId));
 
         // validate controller result
         $reflectedResult = new \ReflectionObject($result);
@@ -80,24 +76,24 @@ class PaymentAuthorizeAndCaptureActionTest extends TestCase
         $this->assertEquals('{"messages":[],"error":false}', $jsonProperty->getValue($result));
 
         // validate created order
-        $order = $this->orderFactory->create()->loadByIncrementId($quote->getReservedOrderId());
+        $order = $this->orderFactory->create()->loadByIncrementId($reservedOrderId);
         $this->assertTrue((bool) $order->getId());
         $this->assertEquals('processing', $order->getStatus());
-        $this->assertEquals('worldline_cc', $order->getPayment()->getMethod());
-        $this->assertCount(1, $order->getInvoiceCollection()->getItems());
+        $this->assertEquals(ConfigProvider::CODE, $order->getPayment()->getMethod());
     }
 
     private function getQuote(): CartInterface
     {
         $quote = $this->quoteExtendedRepository->getQuoteByReservedOrderId('test01');
-        $quote->setReservedOrderId('test02');
-        $quote->getPayment()->setMethod(ConfigProvider::CODE);
+        $quote->getPayment()->setMethod(ConfigProvider::CC_VAULT_CODE);
         $quote->getShippingAddress()->setShippingMethod('flatrate_flatrate');
         $quote->getShippingAddress()->setCollectShippingRates(true);
         $quote->getShippingAddress()->collectShippingRates();
         $quote->setCustomerEmail('example@worldline.com');
         $quote->getPayment()->setAdditionalInformation('payment_id', '3254564310_0');
         $quote->getPayment()->setAdditionalInformation('token_id', 'test');
+        $quote->getPayment()->setAdditionalInformation('public_hash', 'fakePublicHash');
+        $quote->getPayment()->setAdditionalInformation('customer_id', 1);
         $quote->collectTotals();
         $quote->save();
 

@@ -11,6 +11,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Worldline\CreditCard\Gateway\Config\Config;
 use Worldline\PaymentCore\Api\Config\GeneralSettingsConfigInterface;
+use Worldline\PaymentCore\Api\QuoteTotalInterface;
 use Worldline\PaymentCore\Api\SurchargingQuoteRepositoryInterface;
 
 /**
@@ -38,6 +39,11 @@ class ConfigProvider implements ConfigProviderInterface
     private $checkoutSession;
 
     /**
+     * @var QuoteTotalInterface
+     */
+    private $quoteTotal;
+
+    /**
      * @var StoreManagerInterface
      */
     private $storeManager;
@@ -61,6 +67,7 @@ class ConfigProvider implements ConfigProviderInterface
         LoggerInterface $logger,
         Config $config,
         Session $checkoutSession,
+        QuoteTotalInterface $quoteTotal,
         StoreManagerInterface $storeManager,
         PaymentIconsProvider $iconProvider,
         GeneralSettingsConfigInterface $generalSettings,
@@ -69,6 +76,7 @@ class ConfigProvider implements ConfigProviderInterface
         $this->logger = $logger;
         $this->config = $config;
         $this->checkoutSession = $checkoutSession;
+        $this->quoteTotal = $quoteTotal;
         $this->storeManager = $storeManager;
         $this->iconProvider = $iconProvider;
         $this->generalSettings = $generalSettings;
@@ -111,10 +119,10 @@ class ConfigProvider implements ConfigProviderInterface
     {
         if ($this->generalSettings->isApplySurcharge($storeId)) {
             $quote = $this->checkoutSession->getQuote();
-            $grandTotal = (float)$quote->getGrandTotal();
+            $quoteTotal = $this->quoteTotal->getTotalAmount($quote);
             $surchargingQuote = $this->surchargingQuoteRepository->getByQuoteId((int)$quote->getId());
             if ((float)$quote->getGrandTotal() > 0.00001
-                && (!$surchargingQuote->getId() || (float)$surchargingQuote->getQuoteGrandTotal() !== $grandTotal)) {
+                && (!$surchargingQuote->getId() || (float)$surchargingQuote->getQuoteTotalAmount() !== $quoteTotal)) {
                 $result[self::WL_CC_CONFIG_KEY]['isSurchargeEnabled'] = true;
             }
         }

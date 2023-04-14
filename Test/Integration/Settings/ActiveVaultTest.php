@@ -3,17 +3,19 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\Test\Integration\Settings;
 
+use Magento\Customer\Model\Session;
 use Magento\Payment\Model\MethodList;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory as QuoteCollectionFactory;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 use Worldline\CreditCard\Ui\ConfigProvider;
+use Worldline\PaymentCore\Infrastructure\ActiveVault\FakePaymentToken;
 
 /**
- * Test cases for configuration "Payment from Applicable Currencies"
+ * Test cases for configuration "Payment enabled/disabled vault"
  */
-class PaymentFromApplicableCurrenciesTest extends TestCase
+class ActiveVaultTest extends TestCase
 {
     /**
      * @var MethodList
@@ -33,69 +35,71 @@ class PaymentFromApplicableCurrenciesTest extends TestCase
     }
 
     /**
-     * Test the selected specific currencies setting
-     *
      * Steps:
-     * 1) Payment from Applicable Currencies=Specific Currencies
-     * 2) In multiselect choose EUR
-     * 3) Go to checkout with EUR currency
+     * 1) Payment enabled=yes
+     * 2) Go to checkout
      * Expected result: Payment Method is available
-     * 4) Change your currency on USD
-     * Expected result: Payment Method is NOT available
      *
+     * @magentoDataFixture Magento/Customer/_files/customer.php
+     * @magentoDataFixture Magento/Customer/_files/customer_address.php
      * @magentoDataFixture Magento/Sales/_files/quote.php
+     *
+     * @magentoConfigFixture default/currency/options/allow EUR
      * @magentoConfigFixture default/currency/options/base EUR
      * @magentoConfigFixture default/currency/options/default EUR
      * @magentoConfigFixture current_store payment/worldline_cc/active 1
-     * @magentoConfigFixture current_store payment/worldline_cc/allow_specific_currency 1
-     * @magentoConfigFixture current_store payment/worldline_cc/currency EUR
-     *
+     * @magentoConfigFixture current_store payment/worldline_cc_vault/active 1
      * @magentoDbIsolation enabled
      */
-    public function testPaymentFromApplicableCurrencies(): void
+    public function testEnabled(): void
     {
+        /** @var Session $customerSession */
+        $customerSession = Bootstrap::getObjectManager()->get(Session::class);
+        $customerSession->loginById(1);
+
+        Bootstrap::getObjectManager()->get(FakePaymentToken::class)->createVaultToken(ConfigProvider::CODE);
         $quote = $this->getQuote();
-        $quote->getPayment()->setMethod(ConfigProvider::CODE);
 
         $paymentMethods = $this->methodList->getAvailableMethods($quote);
         $paymentMethodCodes = array_map(static function ($method) {
             return $method->getCode();
         }, $paymentMethods);
 
-        $this->assertTrue(in_array('worldline_cc', $paymentMethodCodes));
+        $this->assertTrue(in_array('worldline_cc_vault', $paymentMethodCodes));
     }
 
     /**
-     * Test the selected specific currencies setting
-     *
      * Steps:
-     * 1) Payment from Applicable Currencies=Specific Currencies
-     * 2) In multiselect choose EUR
-     * 3) Go to checkout with EUR currency
-     * Expected result: Payment Method is available
-     * 4) Change your currency on USD
-     * Expected result: Payment Method is NOT available
+     * 1) Payment enabled=no
+     * 2) Go to checkout
+     * Expected result: Payment Method is not available
      *
+     * @magentoDataFixture Magento/Customer/_files/customer.php
+     * @magentoDataFixture Magento/Customer/_files/customer_address.php
      * @magentoDataFixture Magento/Sales/_files/quote.php
-     * @magentoConfigFixture default/currency/options/base USD
-     * @magentoConfigFixture default/currency/options/default USD
-     * @magentoConfigFixture current_store payment/worldline_cc/active 1
-     * @magentoConfigFixture current_store payment/worldline_cc/allow_specific_currency 1
-     * @magentoConfigFixture current_store payment/worldline_cc/currency EUR
      *
+     * @magentoConfigFixture default/currency/options/allow EUR
+     * @magentoConfigFixture default/currency/options/base EUR
+     * @magentoConfigFixture default/currency/options/default EUR
+     * @magentoConfigFixture current_store payment/worldline_cc/active 1
+     * @magentoConfigFixture current_store payment/worldline_cc_vault/active 0
      * @magentoDbIsolation enabled
      */
-    public function testPaymentFromApplicableCurrencies2(): void
+    public function testDisabled(): void
     {
+        /** @var Session $customerSession */
+        $customerSession = Bootstrap::getObjectManager()->get(Session::class);
+        $customerSession->loginById(1);
+
+        Bootstrap::getObjectManager()->get(FakePaymentToken::class)->createVaultToken(ConfigProvider::CODE);
         $quote = $this->getQuote();
-        $quote->getPayment()->setMethod(ConfigProvider::CODE);
 
         $paymentMethods = $this->methodList->getAvailableMethods($quote);
         $paymentMethodCodes = array_map(static function ($method) {
             return $method->getCode();
         }, $paymentMethods);
 
-        $this->assertFalse(in_array('worldline_cc', $paymentMethodCodes));
+        $this->assertFalse(in_array('worldline_cc_vault', $paymentMethodCodes));
     }
 
     private function getQuote(): CartInterface

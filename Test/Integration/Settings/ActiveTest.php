@@ -8,12 +8,11 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory as QuoteCollectionFactory;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use Worldline\CreditCard\Ui\ConfigProvider;
 
 /**
- * Test cases for configuration "Payment from Applicable Currencies"
+ * Test cases for configuration "Payment enabled/disabled"
  */
-class PaymentFromApplicableCurrenciesTest extends TestCase
+class ActiveTest extends TestCase
 {
     /**
      * @var MethodList
@@ -33,29 +32,21 @@ class PaymentFromApplicableCurrenciesTest extends TestCase
     }
 
     /**
-     * Test the selected specific currencies setting
-     *
      * Steps:
-     * 1) Payment from Applicable Currencies=Specific Currencies
-     * 2) In multiselect choose EUR
-     * 3) Go to checkout with EUR currency
+     * 1) Payment enabled=yes
+     * 2) Go to checkout
      * Expected result: Payment Method is available
-     * 4) Change your currency on USD
-     * Expected result: Payment Method is NOT available
      *
      * @magentoDataFixture Magento/Sales/_files/quote.php
+     * @magentoConfigFixture default/currency/options/allow EUR
      * @magentoConfigFixture default/currency/options/base EUR
      * @magentoConfigFixture default/currency/options/default EUR
      * @magentoConfigFixture current_store payment/worldline_cc/active 1
-     * @magentoConfigFixture current_store payment/worldline_cc/allow_specific_currency 1
-     * @magentoConfigFixture current_store payment/worldline_cc/currency EUR
-     *
      * @magentoDbIsolation enabled
      */
-    public function testPaymentFromApplicableCurrencies(): void
+    public function testEnabled(): void
     {
         $quote = $this->getQuote();
-        $quote->getPayment()->setMethod(ConfigProvider::CODE);
 
         $paymentMethods = $this->methodList->getAvailableMethods($quote);
         $paymentMethodCodes = array_map(static function ($method) {
@@ -66,29 +57,21 @@ class PaymentFromApplicableCurrenciesTest extends TestCase
     }
 
     /**
-     * Test the selected specific currencies setting
-     *
      * Steps:
-     * 1) Payment from Applicable Currencies=Specific Currencies
-     * 2) In multiselect choose EUR
-     * 3) Go to checkout with EUR currency
-     * Expected result: Payment Method is available
-     * 4) Change your currency on USD
-     * Expected result: Payment Method is NOT available
+     * 1) Payment enabled=no
+     * 2) Go to checkout
+     * Expected result: Payment Method is not available
      *
      * @magentoDataFixture Magento/Sales/_files/quote.php
-     * @magentoConfigFixture default/currency/options/base USD
-     * @magentoConfigFixture default/currency/options/default USD
-     * @magentoConfigFixture current_store payment/worldline_cc/active 1
-     * @magentoConfigFixture current_store payment/worldline_cc/allow_specific_currency 1
-     * @magentoConfigFixture current_store payment/worldline_cc/currency EUR
-     *
+     * @magentoConfigFixture default/currency/options/allow EUR
+     * @magentoConfigFixture default/currency/options/base EUR
+     * @magentoConfigFixture default/currency/options/default EUR
+     * @magentoConfigFixture current_store payment/worldline_cc/active 0
      * @magentoDbIsolation enabled
      */
-    public function testPaymentFromApplicableCurrencies2(): void
+    public function testDisabled(): void
     {
         $quote = $this->getQuote();
-        $quote->getPayment()->setMethod(ConfigProvider::CODE);
 
         $paymentMethods = $this->methodList->getAvailableMethods($quote);
         $paymentMethodCodes = array_map(static function ($method) {

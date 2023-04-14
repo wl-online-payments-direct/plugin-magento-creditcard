@@ -44,14 +44,14 @@ class PaymentFromApplicableCountriesTest extends TestCase
      *
      * @dataProvider testPaymentFromApplicableCountriesDataProvider
      * @magentoDataFixture Magento/Sales/_files/quote.php
-     * @magentoConfigFixture current_store currency/options/allow EUR
-     * @magentoConfigFixture current_store currency/options/base EUR
-     * @magentoConfigFixture current_store currency/options/default EUR
+     * @magentoConfigFixture default/currency/options/allow EUR
+     * @magentoConfigFixture default/currency/options/base EUR
+     * @magentoConfigFixture default/currency/options/default EUR
      * @magentoConfigFixture current_store payment/worldline_cc/active 1
      * @magentoConfigFixture current_store payment/worldline_cc/payment_action authorize_capture
      * @magentoConfigFixture current_store payment/worldline_cc/allowspecific 1
      * @magentoConfigFixture current_store payment/worldline_cc/specificcountry AF
-     * @magentoDbIsolation disabled
+     * @magentoDbIsolation enabled
      */
     public function testPaymentFromApplicableCountries(string $specificCountry, int $expectedDelta): void
     {

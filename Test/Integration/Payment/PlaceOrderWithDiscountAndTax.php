@@ -47,7 +47,7 @@ class PlaceOrderWithDiscountAndTax extends TestCase
     }
 
     /**
-     * @magentoDbIsolation disabled
+     * @magentoAppIsolation enabled
      * @magentoDataFixture Magento/Sales/_files/quote.php
      * @magentoDataFixture Magento/SalesRule/_files/cart_fixed_10_discount.php
      * @magentoConfigFixture current_store currency/options/allow EUR
@@ -62,10 +62,10 @@ class PlaceOrderWithDiscountAndTax extends TestCase
      */
     public function testOrderWithDiscountAndTax()
     {
-        $quote = $this->getQuote();
+        $reservedOrderId = $this->getQuote()->getReservedOrderId();
 
         // send the webhook and place the order
-        $result = $this->webhookStubSender->sendWebhook(Authorization::getData($quote->getReservedOrderId()));
+        $result = $this->webhookStubSender->sendWebhook(Authorization::getData($reservedOrderId));
 
         // validate controller result
         $reflectedResult = new \ReflectionObject($result);
@@ -74,7 +74,7 @@ class PlaceOrderWithDiscountAndTax extends TestCase
         $this->assertEquals('{"messages":[],"error":false}', $jsonProperty->getValue($result));
 
         // validate created order
-        $order = $this->orderFactory->create()->loadByIncrementId($quote->getReservedOrderId());
+        $order = $this->orderFactory->create()->loadByIncrementId($reservedOrderId);
         $this->assertTrue((bool) $order->getId());
         $this->assertEquals('worldline_cc', $order->getPayment()->getMethod());
         $this->assertEquals(self::SHIPPING_TOTAL_WITH_TAX, $order->getGrandTotal());

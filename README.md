@@ -14,6 +14,12 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.9.0
+- Add support for Magento 2.4.6.
+- Add support for the 5.0.0 version of PHP SDK.
+- Add integration tests.
+- General code improvements.
+
 #### 1.8.2
 - Add fix for Adobe Commerce cloud instances.
 

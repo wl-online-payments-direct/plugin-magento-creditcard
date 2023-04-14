@@ -11,23 +11,25 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Worldline\CreditCard\Model\ReturnRequestProcessor;
-use Worldline\PaymentCore\Model\OrderState;
+use Worldline\PaymentCore\Model\Order\RejectOrderException;
+use Worldline\PaymentCore\Model\OrderState\OrderState;
 
 class ReturnUrl extends Action implements HttpGetActionInterface
 {
     private const SUCCESS_URL = 'checkout/onepage/success';
     private const WAITING_URL = 'worldline/returns/waiting';
     private const FAIL_URL = 'worldline/returns/failed';
-
-    /**
-     * @var ReturnRequestProcessor
-     */
-    private $returnRequestProcessor;
+    private const REJECT_URL = 'worldline/returns/reject';
 
     /**
      * @var UrlInterface
      */
     private $url;
+
+    /**
+     * @var ReturnRequestProcessor
+     */
+    private $returnRequestProcessor;
 
     public function __construct(
         Context $context,
@@ -40,22 +42,22 @@ class ReturnUrl extends Action implements HttpGetActionInterface
 
     public function execute(): ResultInterface
     {
-        $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        $url = $this->url->getRouteUrl(self::SUCCESS_URL);
+
         try {
             $hostedTokenizationId = (string)$this->getRequest()->getParam('hosted_tokenization_id');
 
             /** @var OrderState $orderState */
-            $orderState = $this->returnRequestProcessor->processRequest($hostedTokenizationId);
+            $orderState = $this->returnRequestProcessor->processRequest(null, $hostedTokenizationId);
             if ($orderState->getState() === ReturnRequestProcessor::WAITING_STATE) {
                 $url = $this->url->getRouteUrl(self::WAITING_URL, ['incrementId' => $orderState->getIncrementId()]);
-                $result->setData(['url' => $url]);
-            } else {
-                $result->setData(['url' => $this->url->getRouteUrl(self::SUCCESS_URL)]);
             }
+        } catch (RejectOrderException $exception) {
+            $url = $this->url->getRouteUrl(self::REJECT_URL);
         } catch (LocalizedException $exception) {
-            $result->setData(['url' => $this->url->getRouteUrl(self::FAIL_URL)]);
+            $url = $this->url->getRouteUrl(self::FAIL_URL);
         }
 
-        return $result;
+        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData(['url' => $url]);
     }
 }
