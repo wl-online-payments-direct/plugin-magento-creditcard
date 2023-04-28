@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Worldline\CreditCard\Gateway\Response;
 
 use Magento\Payment\Gateway\Response\HandlerInterface;
+use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order\Payment;
 use OnlinePayments\Sdk\DataObject;
 use Worldline\PaymentCore\Api\SubjectReaderInterface;
@@ -32,12 +33,11 @@ class TransactionIdHandler implements HandlerInterface
             $this->setTransactionId($orderPayment, $transaction);
 
             $orderPayment->setIsTransactionClosed($this->shouldCloseTransaction());
-            $closed = $this->shouldCloseParentTransaction($orderPayment);
-            $orderPayment->setShouldCloseParentTransaction($closed);
+            $orderPayment->setShouldCloseParentTransaction($this->shouldCloseParentTransaction($orderPayment));
         }
     }
 
-    protected function setTransactionId(Payment $orderPayment, DataObject $transaction): void
+    protected function setTransactionId(InfoInterface $orderPayment, DataObject $transaction): void
     {
         $orderPayment->setTransactionId($transaction->getId());
     }
@@ -59,7 +59,7 @@ class TransactionIdHandler implements HandlerInterface
      * @return bool
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function shouldCloseParentTransaction(Payment $orderPayment): bool
+    protected function shouldCloseParentTransaction(InfoInterface $orderPayment): bool
     {
         return false;
     }

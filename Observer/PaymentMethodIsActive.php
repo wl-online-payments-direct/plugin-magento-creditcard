@@ -36,8 +36,8 @@ class PaymentMethodIsActive implements ObserverInterface
         $quote = $observer->getQuote();
         if ($methodInstance === null
             || $quote === null
-            || !$observer->getResult()->getIsAvailable()
             || $methodInstance->getCode() !== ConfigProvider::CODE
+            || !$observer->getResult()->getIsAvailable()
             || !$this->config->isActive()
         ) {
             return;

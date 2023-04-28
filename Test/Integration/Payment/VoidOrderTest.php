@@ -1,26 +1,29 @@
 <?php
 declare(strict_types=1);
 
-namespace Worldline\CreditCard\Test\Integration\Settings;
+namespace Worldline\CreditCard\Test\Integration\Payment;
 
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Sales\Api\Data\OrderInterfaceFactory;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
-use Worldline\CreditCard\Service\CreatePaymentRequest\CardPaymentMethodSIDBuilder;
 use Worldline\CreditCard\Ui\ConfigProvider;
 use Worldline\PaymentCore\Api\QuoteResourceInterface;
 use Worldline\PaymentCore\Api\Test\Infrastructure\ServiceStubSwitcherInterface;
+use Worldline\PaymentCore\Api\Test\Infrastructure\WebhookStubSenderInterface;
+use Worldline\PaymentCore\Infrastructure\StubData\Webhook\Authorization;
 
-/**
- * Test case for configurations:
- * "Enable 3-D Secure Authentication" and "Request Authentication Exemption for Low-value Baskets"
- */
-class AuthenticationExemptionTest extends TestCase
+class VoidOrderTest extends TestCase
 {
     /**
-     * @var CardPaymentMethodSIDBuilder
+     * @var  WebhookStubSenderInterface
      */
-    private $cardPaymentMethodSIDBuilder;
+    private $webhookStubSender;
+
+    /**
+     * @var OrderInterfaceFactory
+     */
+    private $orderFactory;
 
     /**
      * @var QuoteResourceInterface
@@ -30,7 +33,8 @@ class AuthenticationExemptionTest extends TestCase
     public function setUp(): void
     {
         $objectManager = Bootstrap::getObjectManager();
-        $this->cardPaymentMethodSIDBuilder = $objectManager->get(CardPaymentMethodSIDBuilder::class);
+        $this->webhookStubSender = $objectManager->get(WebhookStubSenderInterface::class);
+        $this->orderFactory = $objectManager->get(OrderInterfaceFactory::class);
         $this->quoteExtendedRepository = $objectManager->get(QuoteResourceInterface::class);
         $objectManager->get(ServiceStubSwitcherInterface::class)->setEnabled(true);
     }
@@ -41,41 +45,42 @@ class AuthenticationExemptionTest extends TestCase
      * @magentoConfigFixture default/currency/options/allow EUR
      * @magentoConfigFixture default/currency/options/base EUR
      * @magentoConfigFixture default/currency/options/default EUR
+     * @magentoConfigFixture default/sales_email/general/async_sending 0
      * @magentoConfigFixture current_store payment/worldline_cc/active 1
      * @magentoConfigFixture current_store payment/worldline_cc/payment_action authorize
      * @magentoConfigFixture current_store payment/worldline_cc/authorization_mode final
-     * @magentoConfigFixture current_store worldline_payment/general_settings/enable_3d 1
-     * @magentoConfigFixture current_store worldline_payment/general_settings/authentication_exemption 1
      * @magentoConfigFixture current_store worldline_connection/webhook/key test-X-Gcs-Keyid
      * @magentoConfigFixture current_store worldline_connection/webhook/secret_key test-X-Gcs-Signature
      */
-    public function testAuthenticationExemption(): void
+    public function testVoidOrder(): void
     {
         $quote = $this->getQuote();
-        $cardPaymentMethodSpecificInput = $this->cardPaymentMethodSIDBuilder->build($quote);
 
-        $this->assertNotFalse(
-            strpos($cardPaymentMethodSpecificInput->getReturnUrl(), 'wl_creditcard/returns/returnThreeDSecure')
-        );
+        // send the webhook and place the order
+        $result = $this->webhookStubSender->sendWebhook(Authorization::getData($quote->getReservedOrderId()));
 
-        $this->assertNotFalse(
-            strpos(
-                $cardPaymentMethodSpecificInput->getThreeDSecure()->getRedirectionData()->getReturnUrl(),
-                'wl_creditcard/returns/returnThreeDSecure'
-            )
-        );
+        // validate controller result
+        $reflectedResult = new \ReflectionObject($result);
+        $jsonProperty = $reflectedResult->getProperty('json');
+        $jsonProperty->setAccessible(true);
+        $this->assertEquals('{"messages":[],"error":false}', $jsonProperty->getValue($result));
 
-        $this->assertFalse($cardPaymentMethodSpecificInput->getThreeDSecure()->getSkipAuthentication());
-        $this->assertEquals(
-            'low-value',
-            $cardPaymentMethodSpecificInput->getThreeDSecure()->getExemptionRequest()
-        );
+        // validate created order
+        $order = $this->orderFactory->create()->loadByIncrementId($quote->getReservedOrderId());
+        $this->assertTrue((bool) $order->getId());
+        $this->assertEquals('processing', $order->getStatus());
+        $this->assertEquals(ConfigProvider::CODE, $order->getPayment()->getMethod());
+        $this->assertCount(0, $order->getInvoiceCollection()->getItems());
+
+        $order->getPayment()->void(new \Magento\Framework\DataObject());
+        $order->save();
+
+        $this->assertEquals($order->getPayment()->getLastTransId(), '3254564310_0-void');
     }
 
     private function getQuote(): CartInterface
     {
         $quote = $this->quoteExtendedRepository->getQuoteByReservedOrderId('test01');
-        $quote->setReservedOrderId('test02');
         $quote->getPayment()->setMethod(ConfigProvider::CODE);
         $quote->getShippingAddress()->setShippingMethod('flatrate_flatrate');
         $quote->getShippingAddress()->setCollectShippingRates(true);

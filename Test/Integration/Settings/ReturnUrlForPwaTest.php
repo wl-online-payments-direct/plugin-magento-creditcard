@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\Test\Integration\Settings;
 
+use Magento\Framework\App\Area;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\TestFramework\Helper\Bootstrap;
+use Magento\Framework\App\State;
 use PHPUnit\Framework\TestCase;
 use Worldline\CreditCard\Service\CreatePaymentRequest\CardPaymentMethodSIDBuilder;
 use Worldline\CreditCard\Ui\ConfigProvider;
@@ -12,11 +14,15 @@ use Worldline\PaymentCore\Api\QuoteResourceInterface;
 use Worldline\PaymentCore\Api\Test\Infrastructure\ServiceStubSwitcherInterface;
 
 /**
- * Test case for configurations:
- * "Enable 3-D Secure Authentication" and "Request Authentication Exemption for Low-value Baskets"
+ * Test case for configuration "Custom Return URL"
  */
-class AuthenticationExemptionTest extends TestCase
+class ReturnUrlForPwaTest extends TestCase
 {
+    /**
+     * @var State
+     */
+    private $state;
+
     /**
      * @var CardPaymentMethodSIDBuilder
      */
@@ -30,6 +36,7 @@ class AuthenticationExemptionTest extends TestCase
     public function setUp(): void
     {
         $objectManager = Bootstrap::getObjectManager();
+        $this->state = $objectManager->get(State::class);
         $this->cardPaymentMethodSIDBuilder = $objectManager->get(CardPaymentMethodSIDBuilder::class);
         $this->quoteExtendedRepository = $objectManager->get(QuoteResourceInterface::class);
         $objectManager->get(ServiceStubSwitcherInterface::class)->setEnabled(true);
@@ -42,33 +49,21 @@ class AuthenticationExemptionTest extends TestCase
      * @magentoConfigFixture default/currency/options/base EUR
      * @magentoConfigFixture default/currency/options/default EUR
      * @magentoConfigFixture current_store payment/worldline_cc/active 1
-     * @magentoConfigFixture current_store payment/worldline_cc/payment_action authorize
-     * @magentoConfigFixture current_store payment/worldline_cc/authorization_mode final
-     * @magentoConfigFixture current_store worldline_payment/general_settings/enable_3d 1
-     * @magentoConfigFixture current_store worldline_payment/general_settings/authentication_exemption 1
+     * @magentoConfigFixture current_store payment/worldline_cc/payment_action authorize_capture
      * @magentoConfigFixture current_store worldline_connection/webhook/key test-X-Gcs-Keyid
      * @magentoConfigFixture current_store worldline_connection/webhook/secret_key test-X-Gcs-Signature
+     * @magentoConfigFixture current_store worldline_payment/general_settings/pwa_route https://pwa.com/checkout/success
      */
-    public function testAuthenticationExemption(): void
+    public function testCustomUrl(): void
     {
+        $this->state->setAreaCode(Area::AREA_GRAPHQL);
+
         $quote = $this->getQuote();
         $cardPaymentMethodSpecificInput = $this->cardPaymentMethodSIDBuilder->build($quote);
 
-        $this->assertNotFalse(
-            strpos($cardPaymentMethodSpecificInput->getReturnUrl(), 'wl_creditcard/returns/returnThreeDSecure')
-        );
-
-        $this->assertNotFalse(
-            strpos(
-                $cardPaymentMethodSpecificInput->getThreeDSecure()->getRedirectionData()->getReturnUrl(),
-                'wl_creditcard/returns/returnThreeDSecure'
-            )
-        );
-
-        $this->assertFalse($cardPaymentMethodSpecificInput->getThreeDSecure()->getSkipAuthentication());
         $this->assertEquals(
-            'low-value',
-            $cardPaymentMethodSpecificInput->getThreeDSecure()->getExemptionRequest()
+            'https://pwa.com/checkout/success',
+            $cardPaymentMethodSpecificInput->getReturnUrl()
         );
     }
 

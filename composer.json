@@ -7,7 +7,7 @@
         "worldline/module-magento-payment-core": "2.8.0"
     },
     "type": "magento2-module",
-    "version": "1.9.0",
+    "version": "1.9.1",
     "license": ["MIT"],
     "authors": [
         {

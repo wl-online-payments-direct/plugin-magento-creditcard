@@ -12,7 +12,6 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Worldline\CreditCard\Model\ReturnRequestProcessor;
 use Worldline\PaymentCore\Model\Order\RejectOrderException;
-use Worldline\PaymentCore\Model\OrderState\OrderState;
 
 class ReturnUrl extends Action implements HttpGetActionInterface
 {
@@ -46,8 +45,6 @@ class ReturnUrl extends Action implements HttpGetActionInterface
 
         try {
             $hostedTokenizationId = (string)$this->getRequest()->getParam('hosted_tokenization_id');
-
-            /** @var OrderState $orderState */
             $orderState = $this->returnRequestProcessor->processRequest(null, $hostedTokenizationId);
             if ($orderState->getState() === ReturnRequestProcessor::WAITING_STATE) {
                 $url = $this->url->getRouteUrl(self::WAITING_URL, ['incrementId' => $orderState->getIncrementId()]);

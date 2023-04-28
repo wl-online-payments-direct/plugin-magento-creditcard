@@ -53,7 +53,7 @@ class ActiveTest extends TestCase
             return $method->getCode();
         }, $paymentMethods);
 
-        $this->assertTrue(in_array('worldline_cc', $paymentMethodCodes));
+        $this->assertContains('worldline_cc', $paymentMethodCodes);
     }
 
     /**
@@ -78,7 +78,7 @@ class ActiveTest extends TestCase
             return $method->getCode();
         }, $paymentMethods);
 
-        $this->assertFalse(in_array('worldline_cc', $paymentMethodCodes));
+        $this->assertNotContains('worldline_cc', $paymentMethodCodes);
     }
 
     private function getQuote(): CartInterface

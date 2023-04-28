@@ -10,8 +10,8 @@ use PHPUnit\Framework\TestCase;
 use Worldline\CreditCard\Ui\ConfigProvider;
 use Worldline\PaymentCore\Api\Test\Infrastructure\ServiceStubSwitcherInterface;
 use Worldline\PaymentCore\Api\Test\Infrastructure\WebhookStubSenderInterface;
-use Worldline\PaymentCore\Model\ResourceModel\Quote as QuoteExtendedRepository;
 use Worldline\PaymentCore\Infrastructure\StubData\Webhook\Authorization;
+use Worldline\PaymentCore\Model\ResourceModel\Quote as QuoteExtendedRepository;
 
 /**
  * Test cases for "Place order with discount & Tax"
@@ -60,7 +60,7 @@ class PlaceOrderWithDiscountAndTax extends TestCase
      * @magentoConfigFixture current_store worldline_connection/webhook/secret_key test-X-Gcs-Signature
      * @magentoConfigFixture current_store tax/classes/shipping_tax_class 2
      */
-    public function testOrderWithDiscountAndTax()
+    public function testOrderWithDiscountAndTax(): void
     {
         $reservedOrderId = $this->getQuote()->getReservedOrderId();
 

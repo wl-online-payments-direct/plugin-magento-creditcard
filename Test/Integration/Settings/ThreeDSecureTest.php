@@ -54,18 +54,15 @@ class ThreeDSecureTest extends TestCase
         $quote = $this->getQuote();
         $cardPaymentMethodSpecificInput = $this->cardPaymentMethodSIDBuilder->build($quote);
 
-        $this->assertTrue(
-            strpos(
-                $cardPaymentMethodSpecificInput->getReturnUrl(),
-                'wl_creditcard/returns/returnThreeDSecure'
-            ) !== false
+        $this->assertNotFalse(
+            strpos($cardPaymentMethodSpecificInput->getReturnUrl(), 'wl_creditcard/returns/returnThreeDSecure')
         );
 
-        $this->assertTrue(
+        $this->assertNotFalse(
             strpos(
                 $cardPaymentMethodSpecificInput->getThreeDSecure()->getRedirectionData()->getReturnUrl(),
                 'wl_creditcard/returns/returnThreeDSecure'
-            ) !== false
+            )
         );
 
         $this->assertFalse($cardPaymentMethodSpecificInput->getThreeDSecure()->getSkipAuthentication());

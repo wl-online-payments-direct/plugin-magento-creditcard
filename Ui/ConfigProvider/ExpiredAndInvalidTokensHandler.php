@@ -61,13 +61,9 @@ class ExpiredAndInvalidTokensHandler
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
-    /**
-     * @param array $tokens
-     * @return void
-     */
     public function processExpiredAndInvalidTokens(array $tokens): void
     {
-        if ($this->userContext->getUserId() && !empty($tokens)) {
+        if (!empty($tokens) && $this->userContext->getUserId()) {
             try {
                 foreach ($this->getCustomerExpiredAndInvalidTokens($tokens) as $token) {
                     $this->paymentTokenRepository->delete($token);
@@ -78,10 +74,6 @@ class ExpiredAndInvalidTokensHandler
         }
     }
 
-    /**
-     * @param array $tokens
-     * @return PaymentTokenInterface[]
-     */
     private function getCustomerExpiredAndInvalidTokens(array $tokens): array
     {
         $customerId = $this->filterBuilder
