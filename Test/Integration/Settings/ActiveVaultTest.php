@@ -65,7 +65,7 @@ class ActiveVaultTest extends TestCase
             return $method->getCode();
         }, $paymentMethods);
 
-        $this->assertTrue(in_array('worldline_cc_vault', $paymentMethodCodes));
+        $this->assertContains('worldline_cc_vault', $paymentMethodCodes);
     }
 
     /**
@@ -99,7 +99,7 @@ class ActiveVaultTest extends TestCase
             return $method->getCode();
         }, $paymentMethods);
 
-        $this->assertFalse(in_array('worldline_cc_vault', $paymentMethodCodes));
+        $this->assertNotContains('worldline_cc_vault', $paymentMethodCodes);
     }
 
     private function getQuote(): CartInterface

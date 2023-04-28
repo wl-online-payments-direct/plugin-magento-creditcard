@@ -11,7 +11,6 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Worldline\CreditCard\Model\ReturnRequestProcessor;
 use Worldline\PaymentCore\Model\Order\RejectOrderException;
-use Worldline\PaymentCore\Model\OrderState\OrderState;
 
 class ReturnThreeDSecure extends Action implements HttpGetActionInterface
 {
@@ -37,8 +36,6 @@ class ReturnThreeDSecure extends Action implements HttpGetActionInterface
     {
         try {
             $paymentId = (string)$this->getRequest()->getParam('paymentId');
-
-            /** @var OrderState $orderState */
             $orderState = $this->returnRequestProcessor->processRequest($paymentId);
             if ($orderState->getState() === ReturnRequestProcessor::WAITING_STATE) {
                 return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)

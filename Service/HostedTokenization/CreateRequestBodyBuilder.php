@@ -63,7 +63,7 @@ class CreateRequestBodyBuilder
         $this->paymentTokenManagement = $paymentTokenManagement;
     }
 
-    public function build(?int $storeId = null)
+    public function build(?int $storeId = null): CreateHostedTokenizationRequest
     {
         /** @var CreateHostedTokenizationRequest $createHostedTokenizationRequest */
         $createHostedTokenizationRequest = $this->createHostedTokenizationRequestFactory->create();

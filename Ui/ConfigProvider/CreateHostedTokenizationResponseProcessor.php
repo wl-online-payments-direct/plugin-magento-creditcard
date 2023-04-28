@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace  Worldline\CreditCard\Ui\ConfigProvider;
 
+use Magento\Framework\Exception\LocalizedException;
 use OnlinePayments\Sdk\Domain\CreateHostedTokenizationResponse;
 use Worldline\CreditCard\Service\HostedTokenization\CreateHostedTokenizationSessionService;
 use Worldline\CreditCard\Service\HostedTokenization\CreateRequestBodyBuilder;
@@ -37,7 +38,7 @@ class CreateHostedTokenizationResponseProcessor
     /**
      * @param int|null $storeId
      * @return CreateHostedTokenizationResponse
-     * @throws \Exception
+     * @throws LocalizedException
      */
     public function buildAndProcess(?int $storeId = null): CreateHostedTokenizationResponse
     {

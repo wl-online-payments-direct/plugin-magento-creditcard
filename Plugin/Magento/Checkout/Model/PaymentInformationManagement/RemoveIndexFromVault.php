@@ -5,6 +5,7 @@ namespace Worldline\CreditCard\Plugin\Magento\Checkout\Model\PaymentInformationM
 
 use Magento\Checkout\Api\PaymentInformationManagementInterface;
 use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Vault\Api\PaymentMethodListInterface;
@@ -48,6 +49,7 @@ class RemoveIndexFromVault
      * @param AddressInterface|null $billingAddress
      * @return void
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws NoSuchEntityException
      */
     public function beforeSavePaymentInformation(
         PaymentInformationManagementInterface $subject,

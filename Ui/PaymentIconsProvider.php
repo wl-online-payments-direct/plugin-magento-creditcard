@@ -67,9 +67,13 @@ class PaymentIconsProvider
                 'Worldline_PaymentCore::images/cc/pay_' . $cCType . '.svg',
                 [Area::PARAM_AREA => Area::AREA_FRONTEND]
             );
+            if (!$asset) {
+                continue;
+            }
+
             $placeholder = $this->assetSource->findSource($asset);
             if ($placeholder) {
-                list($width, $height) = $this->generalIconsProvider->getDimensions($asset);
+                [$width, $height] = $this->generalIconsProvider->getDimensions($asset);
                 $icons[$cCType] = [
                     'url' => $asset->getUrl(),
                     'width' => $width,

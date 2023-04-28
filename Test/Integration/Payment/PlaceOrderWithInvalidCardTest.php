@@ -85,7 +85,7 @@ class PlaceOrderWithInvalidCardTest extends TestCase
         $reflectedResult = new \ReflectionObject($result);
         $urlProperty = $reflectedResult->getProperty('url');
         $urlProperty->setAccessible(true);
-        $this->assertTrue(strpos($urlProperty->getValue($result), 'worldline/returns/reject') !== false);
+        $this->assertNotFalse(strpos($urlProperty->getValue($result), 'worldline/returns/reject'));
 
         // validate clean quote
         $quote = $this->quoteExtendedRepository->getQuoteByWorldlinePaymentId('3254564315');
@@ -128,7 +128,7 @@ class PlaceOrderWithInvalidCardTest extends TestCase
         $reflectedResult = new \ReflectionObject($result);
         $jsonProperty = $reflectedResult->getProperty('json');
         $jsonProperty->setAccessible(true);
-        $this->assertTrue(strpos($jsonProperty->getValue($result), 'worldline\/returns\/waiting') !== false);
+        $this->assertNotFalse(strpos($jsonProperty->getValue($result), 'worldline\/returns\/waiting'));
 
         // validate clean quote
         $quote = $this->quoteExtendedRepository->getQuoteByWorldlinePaymentId('3254564315');

@@ -12,8 +12,8 @@ use Magento\Vault\Api\Data\PaymentTokenFactoryInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use OnlinePayments\Sdk\Domain\PaymentResponse;
 use Worldline\PaymentCore\Api\CardDateInterface;
-use Worldline\PaymentCore\Api\SubjectReaderInterface;
 use Worldline\PaymentCore\Api\Config\WorldlineConfigInterface;
+use Worldline\PaymentCore\Api\SubjectReaderInterface;
 
 class VaultDetailsHandler implements HandlerInterface
 {
@@ -103,10 +103,6 @@ class VaultDetailsHandler implements HandlerInterface
         return $paymentToken;
     }
 
-    /**
-     * @param InfoInterface $payment
-     * @return OrderPaymentExtensionInterface
-     */
     private function getExtensionAttributes(InfoInterface $payment): OrderPaymentExtensionInterface
     {
         $extensionAttributes = $payment->getExtensionAttributes();

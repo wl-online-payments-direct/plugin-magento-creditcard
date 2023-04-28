@@ -53,7 +53,7 @@ class TitleTest extends TestCase
         $paymentMethods = $this->methodList->getAvailableMethods($quote);
         $ccPaymentMethod = $this->getCardPaymentMethod($paymentMethods);
 
-        $this->assertTrue($ccPaymentMethod instanceof MethodInterface);
+        $this->assertInstanceOf(MethodInterface::class, $ccPaymentMethod);
 
         $this->assertEquals(
             'Credit Card (Worldline Online Payments)+++++',
