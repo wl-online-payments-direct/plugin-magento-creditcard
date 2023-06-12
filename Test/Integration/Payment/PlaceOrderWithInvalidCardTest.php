@@ -6,6 +6,7 @@ namespace Worldline\CreditCard\Test\Integration\Payment;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\App\Request\HttpFactory as HttpRequestFactory;
+use Magento\Quote\Model\ResourceModel\Quote\Payment\CollectionFactory as QuotePaymentCollectionFactory;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 use Worldline\CreditCard\Controller\Returns\ReturnThreeDSecureFactory;
@@ -39,6 +40,11 @@ class PlaceOrderWithInvalidCardTest extends TestCase
      */
     private $quoteExtendedRepository;
 
+    /**
+     * @var QuotePaymentCollectionFactory
+     */
+    private $quotePaymentCollectionFactory;
+
     public function setUp(): void
     {
         $objectManager = Bootstrap::getObjectManager();
@@ -46,6 +52,7 @@ class PlaceOrderWithInvalidCardTest extends TestCase
         $this->returnThreeDControllerFactory = $objectManager->get(ReturnThreeDSecureFactory::class);
         $this->httpRequestFactory = $objectManager->get(HttpRequestFactory::class);
         $this->quoteExtendedRepository = $objectManager->get(QuoteResourceInterface::class);
+        $this->quotePaymentCollectionFactory = $objectManager->get(QuotePaymentCollectionFactory::class);
         $objectManager->get(ServiceStubSwitcherInterface::class)->setEnabled(true);
     }
 
@@ -88,8 +95,13 @@ class PlaceOrderWithInvalidCardTest extends TestCase
         $this->assertNotFalse(strpos($urlProperty->getValue($result), 'worldline/returns/reject'));
 
         // validate clean quote
-        $quote = $this->quoteExtendedRepository->getQuoteByWorldlinePaymentId('3254564315');
-        $this->assertNull($quote->getPayment()->getAdditionalInformation('payment_id'));
+        $collection = $this->quotePaymentCollectionFactory->create();
+        $collection->addFieldToFilter('additional_information', ['like' => '%' . '3254564315' . '%']);
+        $collection->setOrder('payment_id');
+        $collection->getSelect()->limit(1);
+        $quotePayment = $collection->getFirstItem();
+
+        $this->assertNull($quotePayment->getQuoteId());
     }
 
     /**
@@ -130,7 +142,7 @@ class PlaceOrderWithInvalidCardTest extends TestCase
         $jsonProperty->setAccessible(true);
         $this->assertNotFalse(strpos($jsonProperty->getValue($result), 'worldline\/returns\/waiting'));
 
-        // validate clean quote
+        // validate quote
         $quote = $this->quoteExtendedRepository->getQuoteByWorldlinePaymentId('3254564315');
         $this->assertEquals('3254564315_0', $quote->getPayment()->getAdditionalInformation('payment_id'));
     }
