@@ -288,6 +288,10 @@ define([
                         }, 3000)
                     }
                 }
+            ).fail(
+                function () {
+                    window.location.reload();
+                }
             ).always(
                 function () {
                     self.isPlaceOrderActionAllowed(true);
