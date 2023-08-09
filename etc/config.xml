@@ -27,7 +27,7 @@
                 <can_edit>0</can_edit>
                 <can_review_payment>1</can_review_payment>
                 <can_deny_payment>1</can_deny_payment>
-                <cc_types>americanexpress,cartebancaire,dinersclub,jcb,maestro,mastercard,visa</cc_types>
+                <cc_types>americanexpress,cartebancaire,dinersclub,jcb,maestro,mastercard,visa,upi</cc_types>
                 <debug>0</debug>
                 <template_id>HTPTemplate11_Full.html</template_id>
                 <authorization_mode>final</authorization_mode>

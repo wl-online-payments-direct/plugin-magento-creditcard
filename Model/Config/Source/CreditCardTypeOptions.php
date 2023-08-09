@@ -14,11 +14,13 @@ class CreditCardTypeOptions implements OptionSourceInterface
     public const M_CONFIG_VALUE = 'maestro';
     public const MC_CONFIG_VALUE = 'mastercard';
     public const V_CONFIG_VALUE = 'visa';
+    public const UPI_CONFIG_VALUE = 'upi';
 
     public const PAYMENT_PRODUCTS = [
         self::V_CONFIG_VALUE => 1,
         self::AE_CONFIG_VALUE => 2,
         self::MC_CONFIG_VALUE => 3,
+        self::UPI_CONFIG_VALUE => 56,
         self::M_CONFIG_VALUE => 117,
         self::JCB_CONFIG_VALUE => 125,
         self::CB_CONFIG_VALUE => 130,
@@ -58,6 +60,10 @@ class CreditCardTypeOptions implements OptionSourceInterface
             [
                 'value' => self::V_CONFIG_VALUE,
                 'label' => __('Visa')
+            ],
+            [
+                'value' => self::UPI_CONFIG_VALUE,
+                'label' => __('Union Pay International')
             ]
         ];
     }
