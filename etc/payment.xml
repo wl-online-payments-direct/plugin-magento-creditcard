@@ -11,4 +11,9 @@
             <allow_multiple_address>0</allow_multiple_address>
         </method>
     </methods>
+    <credit_cards>
+        <type id="UN" order="140">
+            <label>Union Pay International</label>
+        </type>
+    </credit_cards>
 </payment>
