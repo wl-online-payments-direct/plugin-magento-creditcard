@@ -14,6 +14,10 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.12.1
+- Fixed issue with partial invoices and partial credit memos.
+- Fixed transaction ID value for request to check if payment can be cancelled.
+
 #### 1.12.0
 - Added own branded gift card compatibility for Intersolve payment method.
 - Added compatibility with Php Sdk 5.7.0.
