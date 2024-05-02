@@ -37,7 +37,7 @@ class ReturnThreeDSecure extends Action implements HttpGetActionInterface
         try {
             $paymentId = (string)$this->getRequest()->getParam('paymentId');
             $orderState = $this->returnRequestProcessor->processRequest($paymentId);
-            if ($orderState->getState() === ReturnRequestProcessor::WAITING_STATE) {
+            if ($orderState && $orderState->getState() === ReturnRequestProcessor::WAITING_STATE) {
                 return $this->resultFactory->create(ResultFactory::TYPE_REDIRECT)
                     ->setPath(self::WAITING_URL, ['incrementId' => $orderState->getIncrementId()]);
             }

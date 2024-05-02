@@ -5,6 +5,7 @@ namespace Worldline\CreditCard\WebApi\CreatePaymentManagement;
 
 use Magento\Quote\Api\Data\PaymentInterface;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
+use Worldline\PaymentCore\Api\Data\QuotePaymentInterface;
 use Worldline\PaymentCore\Model\DataAssigner\DataAssignerInterface;
 use Worldline\CreditCard\Service\HostedTokenization\GetHostedTokenizationSessionService;
 
@@ -23,8 +24,11 @@ class PaymentMethodDataAssigner implements DataAssignerInterface
         $this->getHostedTokenizationSessionService = $getHostedTokenizationSessionService;
     }
 
-    public function assign(PaymentInterface $payment, array $additionalInformation): void
-    {
+    public function assign(
+        PaymentInterface $payment,
+        QuotePaymentInterface $wlQuotePayment,
+        array $additionalInformation
+    ): void {
         $hostedTokenizationId = $additionalInformation['hosted_tokenization_id'] ?? '';
         if (!$hostedTokenizationId) {
             $hostedTokenizationId = (string)$payment->getAdditionalInformation('hosted_tokenization_id');

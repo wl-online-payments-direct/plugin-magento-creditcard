@@ -8,6 +8,7 @@ use Magento\Quote\Api\Data\PaymentInterface;
 use OnlinePayments\Sdk\Domain\MerchantAction;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\CreditCard\Service\Payment\CreatePaymentRequestBuilder;
+use Worldline\PaymentCore\Api\Data\QuotePaymentInterface;
 use Worldline\PaymentCore\Api\Payment\PaymentIdFormatterInterface;
 use Worldline\PaymentCore\Api\Service\Payment\CreatePaymentServiceInterface;
 use Worldline\PaymentCore\Model\DataAssigner\DataAssignerInterface;
@@ -43,20 +44,28 @@ class CreatePaymentDataAssigner implements DataAssignerInterface
      * Assign payment id and identify redirect url
      *
      * @param PaymentInterface $payment
+     * @param QuotePaymentInterface $wlQuotePayment
      * @param array $additionalInformation
      * @return void
      * @throws LocalizedException
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function assign(PaymentInterface $payment, array $additionalInformation): void
-    {
+    public function assign(
+        PaymentInterface $payment,
+        QuotePaymentInterface $wlQuotePayment,
+        array $additionalInformation
+    ): void {
         $quote = $payment->getQuote();
         $request = $this->createRequestBuilder->build($quote);
         $response = $this->createPaymentService->execute($request, (int)$quote->getStoreId());
 
+        $storedPayIds = $payment->getAdditionalInformation('payment_ids') ?? [];
+
         $wlPaymentId = $this->paymentIdFormatter->validateAndFormat((string) $response->getPayment()->getId());
-        $payment->setAdditionalInformation(PaymentDataBuilder::PAYMENT_ID, $wlPaymentId);
+        $payment->setAdditionalInformation('payment_ids', array_merge($storedPayIds, [$wlPaymentId]));
+        $wlQuotePayment->setPaymentIdentifier($wlPaymentId);
+        $wlQuotePayment->setMethod($payment->getMethod());
 
         $action = $response->getMerchantAction();
 

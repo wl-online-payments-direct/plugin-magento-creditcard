@@ -46,7 +46,7 @@ class ReturnUrl extends Action implements HttpGetActionInterface
         try {
             $hostedTokenizationId = (string)$this->getRequest()->getParam('hosted_tokenization_id');
             $orderState = $this->returnRequestProcessor->processRequest(null, $hostedTokenizationId);
-            if ($orderState->getState() === ReturnRequestProcessor::WAITING_STATE) {
+            if ($orderState && $orderState->getState() === ReturnRequestProcessor::WAITING_STATE) {
                 $url = $this->url->getRouteUrl(self::WAITING_URL, ['incrementId' => $orderState->getIncrementId()]);
             }
         } catch (RejectOrderException $exception) {
