@@ -10,6 +10,7 @@ use Worldline\PaymentCore\Api\Payment\PaymentIdFormatterInterface;
 use Worldline\PaymentCore\Api\QuoteResourceInterface;
 use Worldline\PaymentCore\Api\SessionDataManagerInterface;
 use Worldline\PaymentCore\Model\OrderState\OrderState;
+use Worldline\PaymentCore\Model\QuotePayment\QuotePaymentRepository;
 
 class ReturnRequestProcessor
 {
@@ -47,13 +48,19 @@ class ReturnRequestProcessor
      */
     private $successTransactionChecker;
 
+    /**
+     * @var QuotePaymentRepository
+     */
+    private $quotePaymentRepository;
+
     public function __construct(
         QuoteResourceInterface $quoteResource,
         SessionDataManagerInterface $sessionDataManager,
         OrderFactory $orderFactory,
         OrderStateManagerInterface $orderStateManager,
         PaymentIdFormatterInterface $paymentIdFormatter,
-        SuccessTransactionChecker $successTransactionChecker
+        SuccessTransactionChecker $successTransactionChecker,
+        QuotePaymentRepository $quotePaymentRepository
     ) {
         $this->quoteResource = $quoteResource;
         $this->sessionDataManager = $sessionDataManager;
@@ -61,9 +68,10 @@ class ReturnRequestProcessor
         $this->orderStateManager = $orderStateManager;
         $this->paymentIdFormatter = $paymentIdFormatter;
         $this->successTransactionChecker = $successTransactionChecker;
+        $this->quotePaymentRepository = $quotePaymentRepository;
     }
 
-    public function processRequest(string $paymentId = null, string $hostedTokenizationId = null): OrderState
+    public function processRequest(string $paymentId = null, string $hostedTokenizationId = null): ?OrderState
     {
         if ($paymentId) {
             $paymentId = $this->paymentIdFormatter->validateAndFormat($paymentId);
@@ -71,9 +79,20 @@ class ReturnRequestProcessor
             $this->successTransactionChecker->check($quote, $paymentId);
         } else {
             $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($hostedTokenizationId);
+            $paymentId = $hostedTokenizationId;
+        }
+
+        if (!$quote) {
+            return null;
         }
 
         $payment = $quote->getPayment();
+        $payment->setAdditionalInformation('payment_id', $paymentId);
+        $quotePayment = $this->quotePaymentRepository->getByPaymentIdentifier($paymentId);
+        $payment->setMethod($quotePayment->getMethod());
+        $quote->setIsActive(false);
+        $this->quoteResource->save($quote);
+
         $paymentCode = (string)$payment->getMethod();
         $paymentProductId = (int)$payment->getAdditionalInformation(PaymentInterface::PAYMENT_PRODUCT_ID);
 
