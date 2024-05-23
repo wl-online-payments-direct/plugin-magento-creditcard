@@ -79,7 +79,6 @@ class ReturnRequestProcessor
             $this->successTransactionChecker->check($quote, $paymentId);
         } else {
             $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($hostedTokenizationId);
-            $paymentId = $hostedTokenizationId;
         }
 
         if (!$quote) {
@@ -87,9 +86,13 @@ class ReturnRequestProcessor
         }
 
         $payment = $quote->getPayment();
-        $payment->setAdditionalInformation('payment_id', $paymentId);
-        $quotePayment = $this->quotePaymentRepository->getByPaymentIdentifier($paymentId);
-        $payment->setMethod($quotePayment->getMethod());
+
+        if ($paymentId) {
+            $payment->setAdditionalInformation('payment_id', $paymentId);
+            $quotePayment = $this->quotePaymentRepository->getByPaymentIdentifier($paymentId);
+            $payment->setMethod($quotePayment->getMethod());
+        }
+
         $quote->setIsActive(false);
         $this->quoteResource->save($quote);
 

@@ -6,7 +6,6 @@ namespace Worldline\CreditCard\WebApi\CreatePaymentManagement;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\PaymentInterface;
 use OnlinePayments\Sdk\Domain\MerchantAction;
-use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\CreditCard\Service\Payment\CreatePaymentRequestBuilder;
 use Worldline\PaymentCore\Api\Data\QuotePaymentInterface;
 use Worldline\PaymentCore\Api\Payment\PaymentIdFormatterInterface;
@@ -64,6 +63,7 @@ class CreatePaymentDataAssigner implements DataAssignerInterface
 
         $wlPaymentId = $this->paymentIdFormatter->validateAndFormat((string) $response->getPayment()->getId());
         $payment->setAdditionalInformation('payment_ids', array_merge($storedPayIds, [$wlPaymentId]));
+        $payment->setAdditionalInformation('payment_id', $wlPaymentId);
         $wlQuotePayment->setPaymentIdentifier($wlPaymentId);
         $wlQuotePayment->setMethod($payment->getMethod());
 
