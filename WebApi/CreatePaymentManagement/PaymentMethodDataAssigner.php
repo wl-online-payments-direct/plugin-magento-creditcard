@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Worldline\CreditCard\WebApi\CreatePaymentManagement;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Worldline\CreditCard\Gateway\Request\PaymentDataBuilder;
 use Worldline\PaymentCore\Api\Data\QuotePaymentInterface;
@@ -24,6 +25,15 @@ class PaymentMethodDataAssigner implements DataAssignerInterface
         $this->getHostedTokenizationSessionService = $getHostedTokenizationSessionService;
     }
 
+    /**
+     * @param PaymentInterface $payment
+     * @param QuotePaymentInterface $wlQuotePayment
+     * @param array $additionalInformation
+     * @return void
+     * @throws LocalizedException
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function assign(
         PaymentInterface $payment,
         QuotePaymentInterface $wlQuotePayment,
