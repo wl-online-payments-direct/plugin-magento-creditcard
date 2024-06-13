@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.18.0
+- Improved display of shipping costs on the payment page for Hosted Checkout and Redirect Payment.
+
 #### 1.17.0
 - Added trusted URLs to the CSP whitelist.
 - Improved reliability of fallback cron job.
