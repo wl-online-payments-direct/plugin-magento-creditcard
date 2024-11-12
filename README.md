@@ -14,6 +14,10 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.19.0
+- Fixed issue where FPT (Fixed Product Tax) rates were not taken into account.
+- Update "wl-online-payments-direct/sdk-php" library to 5.16.1
+
 #### 1.18.0
 - Improved display of shipping costs on the payment page for Hosted Checkout and Redirect Payment.
 
