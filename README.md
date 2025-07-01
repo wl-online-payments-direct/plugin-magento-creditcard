@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.21.0
+- Added 3DS exemption types to the plugin
+
 #### 1.20.0
 - Fixed validation for HTML template ID configuration. It is no longer required to have extension on HTML templates.
 - Fixed issue where items quantities in decimals were not taken into account.
