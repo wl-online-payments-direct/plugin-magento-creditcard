@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.22.0
+- Update plugin translations
+
 #### 1.21.0
 - Added 3DS exemption types to the plugin
 
