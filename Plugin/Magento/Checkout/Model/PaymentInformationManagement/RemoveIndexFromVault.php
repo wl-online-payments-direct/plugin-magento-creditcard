@@ -55,7 +55,7 @@ class RemoveIndexFromVault
         PaymentInformationManagementInterface $subject,
         string $cartId,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
+        ?AddressInterface $billingAddress = null
     ): void {
         if (version_compare($this->productMetadata->getVersion(), '2.4.2', '<')) {
             $availableMethods = $this->vaultPaymentMethodList->getActiveList($this->storeManager->getStore()->getId());
