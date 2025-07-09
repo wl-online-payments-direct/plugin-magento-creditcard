@@ -6,7 +6,7 @@ namespace Worldline\CreditCard\Gateway\Response;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order\Payment;
-use OnlinePayments\Sdk\DataObject;
+use OnlinePayments\Sdk\Domain\DataObject;
 use Worldline\PaymentCore\Api\SubjectReaderInterface;
 
 class TransactionIdHandler implements HandlerInterface

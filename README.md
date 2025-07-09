@@ -14,6 +14,10 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.24.0
+- Add compatibility with PHP 8.4
+- Update SDK version
+
 #### 1.23.0
 - Fixed order creation using Google Pay & Apple Pay
 

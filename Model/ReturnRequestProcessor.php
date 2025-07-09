@@ -71,7 +71,7 @@ class ReturnRequestProcessor
         $this->quotePaymentRepository = $quotePaymentRepository;
     }
 
-    public function processRequest(string $paymentId = null, string $hostedTokenizationId = null): ?OrderState
+    public function processRequest(?string $paymentId = null, ?string $hostedTokenizationId = null): ?OrderState
     {
         if ($paymentId) {
             $paymentId = $this->paymentIdFormatter->validateAndFormat($paymentId);

@@ -59,7 +59,7 @@ class Vault extends \Magento\Vault\Model\Method\Vault
      * @param CartInterface|null $quote
      * @return bool
      */
-    public function isAvailable(CartInterface $quote = null): bool
+    public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($quote === null) {
             return parent::isAvailable($quote);
