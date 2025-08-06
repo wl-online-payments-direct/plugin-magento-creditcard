@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.28.0
+- Fix comma separated email validation in notification settings
+
 #### 1.27.0
 - Fix issue with showing split payment amounts on order details page for Mealvoucher transactions
 - Fix issue with showing Mealvoucher in full redirect
