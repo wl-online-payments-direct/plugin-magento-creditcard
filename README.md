@@ -14,6 +14,10 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.27.0
+- Fix issue with showing split payment amounts on order details page for Mealvoucher transactions
+- Fix issue with showing Mealvoucher in full redirect
+
 #### 1.26.0
 - Fix logo issue for CB on checkout page
 - Fix PHP >= 8.2 issue with not sending parameter by reference
