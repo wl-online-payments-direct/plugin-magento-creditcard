@@ -14,6 +14,15 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.31.0
+- Add quote ID in request payload
+- Fix wrong IP address being sent on checkout
+- Decrease maximum payment method logos
+- Add compatibility with 2.4.8-p2
+
+#### 1.30.0
+- Fix issue with sending email
+
 #### 1.29.0
 - Fix wrong handling of payment specific information on order page
 
