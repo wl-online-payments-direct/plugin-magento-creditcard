@@ -14,6 +14,13 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.33.0
+- Remove MealVouchers configuration from hosted checkout
+- Fix mobile payment method information not being shown in order details
+
+#### 1.32.0
+- Update payment brand logos
+
 #### 1.31.0
 - Add quote ID in request payload
 - Fix wrong IP address being sent on checkout
