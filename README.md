@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+#### 1.34.0
+- Add new payment method: Pledg
+
 #### 1.33.0
 - Remove MealVouchers configuration from hosted checkout
 - Fix mobile payment method information not being shown in order details
