@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+### 1.38.0
+- Remove Mealvouchers logo from checkout page when using "Hosted Checkout (redirect to Worldline)"
+
 #### 1.37.0
 - Fix: Do not allow usage of decimals in the object cardPaymentMethodSpecificInput.paymentProduct130SpecificInput.threeDSecure.numberOfItems
 
