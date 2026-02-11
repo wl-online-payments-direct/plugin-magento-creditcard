@@ -14,11 +14,16 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+### 1.39.0
+- Improved exemptions capabilities related to 3DS exemption types
+- Added phone number formatter for sending API requests
+
 ### 1.38.0
 - Remove Mealvouchers logo from checkout page when using "Hosted Checkout (redirect to Worldline)"
 
 #### 1.37.0
 - Fix: Do not allow usage of decimals in the object cardPaymentMethodSpecificInput.paymentProduct130SpecificInput.threeDSecure.numberOfItems
+- Fix amount discrepancy issues
 
 #### 1.36.0
 - Added: Possibility to auto-include primary webhooks URL in the payload of payment request, and to configure up to 4 additional endpoints.
@@ -26,6 +31,7 @@ This solution is also included into [main plugin for adobe commerce](https://git
 
 #### 1.35.0
 - Improved: Data mapping to flag correctly exemptions requests to 3-D Secure.
+
 
 #### 1.34.0
 - Add new payment method: Pledg
@@ -35,6 +41,8 @@ This solution is also included into [main plugin for adobe commerce](https://git
 - Fix mobile payment method information not being shown in order details
 
 #### 1.32.0
+- Add allow amount discrepancy option
+- Fix print invoice issue
 - Update payment brand logos
 
 #### 1.31.0
