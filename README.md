@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+### 1.42.0
+- Fix order creation when 3DS exemption configuration is disabled
+
 ### 1.40.0
 - Fix: Stability for 3DS exemption capabilities
 
