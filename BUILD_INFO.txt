@@ -1,1 +1,1 @@
-Built from Worldline-Plugins/plugin-magento-creditcard-PRE-RELEASE@1.40.0 on Wed Feb 11 10:38:52 UTC 2026
+Built from Worldline-Plugins/plugin-magento-creditcard-PRE-RELEASE@1.43.0 on Mon Mar  2 08:58:00 UTC 2026
