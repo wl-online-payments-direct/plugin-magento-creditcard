@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+### 1.48.0
+- Added: Linxo Connect payment method
+
 ### 1.47.0
 - Fixed: Handle formatting phone number when it is optional
 
