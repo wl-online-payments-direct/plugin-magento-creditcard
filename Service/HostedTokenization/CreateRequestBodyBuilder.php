@@ -70,7 +70,7 @@ class CreateRequestBodyBuilder
 
         $createHostedTokenizationRequest->setAskConsumerConsent(
             $this->config->isVaultActive($storeId)
-            && $this->userContext->getUserId()
+            && (bool) $this->userContext->getUserId()
         );
         $createHostedTokenizationRequest->setVariant($this->config->getTemplateId($storeId));
         $createHostedTokenizationRequest->setLocale($this->localResolver->getLocale());

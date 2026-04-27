@@ -107,7 +107,7 @@ class CardPaymentMethodSIDBuilder
                 $this->threeDSecureQtyCalculator->calculateNumberOfItems($quote),
                 self::MAX_SUPPORTED_NUMBER_OF_ITEMS
             );
-            $paymentProduct130ThreeDSecure->setNumberOfItems($numberOfItems);
+            $paymentProduct130ThreeDSecure->setNumberOfItems((int) $numberOfItems);
 
             if (!$this->generalSettings->isAuthExemptionEnabled($storeId)) {
                 $paymentProduct130ThreeDSecure->setAcquirerExemption(false);
