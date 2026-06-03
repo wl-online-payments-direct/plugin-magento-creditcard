@@ -9,6 +9,7 @@ use OnlinePayments\Sdk\Domain\CreateHostedTokenizationResponse;
 use Psr\Log\LoggerInterface;
 use Worldline\PaymentCore\Api\ClientProviderInterface;
 use Worldline\PaymentCore\Api\Config\WorldlineConfigInterface;
+use Worldline\PaymentCore\Api\Service\Services\StoreConnectionServiceInterface;
 use Worldline\CreditCard\Api\Service\HostedTokenization\CreateHostedTokenizationSessionServiceInterface;
 
 /**
@@ -31,14 +32,21 @@ class CreateHostedTokenizationSessionService implements CreateHostedTokenization
      */
     private $logger;
 
+    /**
+     * @var StoreConnectionServiceInterface
+     */
+    private $storeConnectionService;
+
     public function __construct(
         WorldlineConfigInterface $worldlineConfig,
         ClientProviderInterface $clientProvider,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        StoreConnectionServiceInterface $storeConnectionService
     ) {
         $this->worldlineConfig = $worldlineConfig;
         $this->clientProvider = $clientProvider;
         $this->logger = $logger;
+        $this->storeConnectionService = $storeConnectionService;
     }
 
     /**
@@ -53,6 +61,10 @@ class CreateHostedTokenizationSessionService implements CreateHostedTokenization
         CreateHostedTokenizationRequest $createHostedTokenizationRequest,
         ?int $storeId = null
     ): CreateHostedTokenizationResponse {
+        if (!$this->storeConnectionService->execute((int) $storeId)) {
+            throw new LocalizedException(__('Worldline is not connected for this store.'));
+        }
+
         try {
             return $this->clientProvider->getClient($storeId)
                 ->merchant($this->worldlineConfig->getMerchantId($storeId))
