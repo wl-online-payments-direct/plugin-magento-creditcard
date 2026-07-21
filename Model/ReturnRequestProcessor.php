@@ -78,6 +78,8 @@ class ReturnRequestProcessor
             $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($paymentId);
             $this->successTransactionChecker->check($quote, $paymentId);
         } else {
+            $hostedTokenizationId = $this->paymentIdFormatter
+                ->validateAndFormatHostedTokenizationId((string)$hostedTokenizationId);
             $quote = $this->quoteResource->getQuoteByWorldlinePaymentId($hostedTokenizationId);
         }
 

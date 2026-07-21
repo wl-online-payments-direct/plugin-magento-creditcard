@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+### 1.55.0
+- Fixed: Fixing security issues
+
 ### 1.54.0
 - Added: New signature types options for SEPA Direct Debit
 
