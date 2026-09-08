@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+### 1.57.0
+- Changed: Card saving now requires an enabled vault and a logged in shopper
+
 ### 1.56.0
 - Fixed: Connection error when saving API and Webhook credentials on PHP 8.5 and Magento 2.4.9
 - Fixed: Order details rendering for split payments

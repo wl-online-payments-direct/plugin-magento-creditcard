@@ -87,15 +87,20 @@ class ConfigProvider implements ConfigProviderInterface
     {
         $storeId = (int) $this->storeManager->getStore()->getId();
         try {
-            return $this->addSurchargingConfig($storeId, [
+            $result = [
                 'payment' => [
                     self::CODE => [
                         'isActive' => $this->config->isActive($storeId),
-                        'icons' => $this->iconProvider->getIcons($storeId),
-                        'ccVaultCode' => self::CC_VAULT_CODE
+                        'icons' => $this->iconProvider->getIcons($storeId)
                     ]
                 ]
-            ]);
+            ];
+
+            if ($this->config->isVaultActive($storeId)) {
+                $result['payment'][self::CODE]['ccVaultCode'] = self::CC_VAULT_CODE;
+            }
+
+            return $this->addSurchargingConfig($storeId, $result);
         } catch (LocalizedException $e) {
             $this->logger->critical($e);
             return [
