@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+### 1.59.0
+- Changed: Remove constraint to be logged in for Mealvouchers
+
 ### 1.58.0
 - Fixed: Adjust tax amounts rounding and prevent a validation amount failure
 
