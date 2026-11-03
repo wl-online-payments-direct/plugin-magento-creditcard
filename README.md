@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+### 1.61.0
+- Changed: Add payment method Wero
+
 ### 1.60.0
 - Fixed: Validate checkout addresses before the payment redirect to prevent paid payments without an order
 - Fixed: Checkout page breaking when the address could not be saved to the address book
