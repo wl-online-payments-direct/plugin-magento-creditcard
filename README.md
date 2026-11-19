@@ -14,6 +14,9 @@ or install it from the GitHub.
 This solution is also included into [main plugin for adobe commerce](https://github.com/wl-online-payments-direct/plugin-magento).
 ### Change log:
 
+### 1.62.0
+- Added: PostFinance Pay payment method
+
 ### 1.61.0
 - Changed: Add payment method Wero
 
